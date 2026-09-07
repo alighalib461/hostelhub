@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { BrandLogo } from './BrandLogo'
@@ -20,14 +20,28 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
   receipt,
   isLoading = false,
 }) => {
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
+
   if (!receipt && !isLoading) return null
 
   const isVoided = receipt?.status === 'voided'
   const receiptElementId = `receipt-${receipt?.receipt_number}`
 
-  const handleDownload = () => {
-    if (receipt) {
-      downloadReceiptAsImage(receiptElementId, `Receipt-${receipt.receipt_number}`)
+  const handleDownload = async () => {
+    if (!receipt || isDownloading) return
+    setIsDownloading(true)
+    setDownloadSuccess(false)
+    try {
+      const result = await downloadReceiptAsImage(receiptElementId, `Receipt-${receipt.receipt_number}`)
+      if (result.success) {
+        setDownloadSuccess(true)
+        setTimeout(() => setDownloadSuccess(false), 3500)
+      }
+    } catch (err) {
+      console.error('Failed to download receipt image:', err)
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -207,12 +221,19 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
             Print
           </Button>
           <Button
-            variant="primary"
+            variant={downloadSuccess ? 'success' : 'primary'}
             size="sm"
-            leftIcon={<Download className="w-4 h-4" />}
+            leftIcon={
+              downloadSuccess ? (
+                <CheckCircle2 className="w-4 h-4" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )
+            }
+            isLoading={isDownloading}
             onClick={handleDownload}
           >
-            Download Image
+            {downloadSuccess ? 'Saved / Downloaded' : 'Download Image'}
           </Button>
         </div>
       </div>
