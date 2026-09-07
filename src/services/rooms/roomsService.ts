@@ -67,7 +67,7 @@ export const roomsService = {
         hostel_id: room.hostel_id,
         room_number: room.room_number,
         capacity: room.capacity,
-        status: 'available',
+        status: 'active',
       })
       .select()
       .single()

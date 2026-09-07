@@ -28,6 +28,14 @@ export function formatErrorMessage(error: unknown): string {
     return 'A resident with this ID already exists.'
   }
 
+  // Check constraints
+  if (message.includes('rooms_status_check')) {
+    return 'Invalid status provided for room.'
+  }
+  if (message.includes('beds_status_check')) {
+    return 'Invalid status provided for bed.'
+  }
+
   // Row level security & auth
   if (message.includes('permission denied') || message.includes('new row violates row-level security policy') || message.includes('violates row-level security')) {
     return "You don't have permission to access or modify this information."

@@ -82,7 +82,7 @@ export interface Database {
           hostel_id: string
           room_number: string
           capacity: number
-          status: 'available' | 'occupied' | 'maintenance'
+          status: 'active' | 'maintenance' | 'inactive'
           created_at: string
           updated_at: string
         }
@@ -91,7 +91,7 @@ export interface Database {
           hostel_id: string
           room_number: string
           capacity?: number
-          status?: 'available' | 'occupied' | 'maintenance'
+          status?: 'active' | 'maintenance' | 'inactive'
           created_at?: string
           updated_at?: string
         }
@@ -100,7 +100,7 @@ export interface Database {
           hostel_id?: string
           room_number?: string
           capacity?: number
-          status?: 'available' | 'occupied' | 'maintenance'
+          status?: 'active' | 'maintenance' | 'inactive'
           created_at?: string
           updated_at?: string
         }
