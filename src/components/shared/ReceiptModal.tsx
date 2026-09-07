@@ -33,7 +33,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({
     setIsDownloading(true)
     setDownloadSuccess(false)
     try {
-      const result = await downloadReceiptAsImage(receiptElementId, `Receipt-${receipt.receipt_number}`)
+      const result = await downloadReceiptAsImage(receipt)
       if (result.success) {
         setDownloadSuccess(true)
         setTimeout(() => setDownloadSuccess(false), 3500)
