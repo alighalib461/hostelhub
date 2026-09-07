@@ -192,11 +192,11 @@ export const ResidentDashboardPage: React.FC = () => {
               <Bed className="w-4 h-4" />
             </div>
           </div>
-          <div>
-            <p className="text-xl font-bold text-text-primary">
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-bold text-text-primary truncate">
               {room?.room_number ? `Room ${room.room_number}` : 'No Room Assigned'}
             </p>
-            <p className="text-xs text-text-secondary mt-0.5">
+            <p className="text-xs text-text-secondary mt-0.5 truncate">
               {bed?.bed_number ? `Bed: ${bed.bed_number}` : 'Awaiting assignment'}
             </p>
           </div>
