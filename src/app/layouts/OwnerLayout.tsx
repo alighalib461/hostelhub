@@ -84,9 +84,17 @@ export const OwnerLayout: React.FC = () => {
         {/* Bottom User & Logout Section */}
         <div className="p-4 border-t border-white/10 space-y-3 bg-[#070D14]/80">
           <div className="flex items-center gap-3 px-2">
-            <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs shadow-sm">
-              {profile?.full_name?.charAt(0) || 'O'}
-            </div>
+            {profile?.avatar_path ? (
+              <img
+                src={profile.avatar_path}
+                alt={profile.full_name}
+                className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/20 shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                {profile?.full_name?.charAt(0) || 'O'}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-white truncate">{profile?.full_name || 'Owner'}</p>
               <p className="text-[11px] text-[#16A085] font-semibold capitalize">Owner / Admin</p>
@@ -211,10 +219,20 @@ export const OwnerLayout: React.FC = () => {
             {/* User Profile Avatar */}
             <div
               onClick={() => navigate('/app/settings')}
-              className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-300 text-[#2563EB] flex items-center justify-center font-bold text-xs cursor-pointer hover:border-blue-500 hover:bg-blue-100 transition-all shrink-0"
+              className="cursor-pointer shrink-0"
               title="Settings"
             >
-              {profile?.full_name?.charAt(0) || 'O'}
+              {profile?.avatar_path ? (
+                <img
+                  src={profile.avatar_path}
+                  alt={profile.full_name}
+                  className="w-9 h-9 rounded-xl object-cover border border-blue-200 hover:border-blue-500 hover:scale-105 transition-all shadow-xs"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-300 text-[#2563EB] flex items-center justify-center font-bold text-xs hover:border-blue-500 hover:bg-blue-100 transition-all shadow-xs">
+                  {profile?.full_name?.charAt(0) || 'O'}
+                </div>
+              )}
             </div>
           </div>
         </header>

@@ -136,4 +136,38 @@ export const authService = {
     if (error) throw new Error(formatErrorMessage(error))
     return data
   },
+
+  async uploadAvatar(file: File): Promise<string> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('Image size exceeds 5MB limit.')
+    }
+
+    const fileExt = file.name.split('.').pop() || 'png'
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`
+
+    const { data, error } = await supabase.storage.from('avatars').upload(fileName, file, {
+      upsert: true,
+      cacheControl: '3600',
+    })
+
+    if (error) throw new Error(formatErrorMessage(error))
+
+    const { data: publicData } = supabase.storage.from('avatars').getPublicUrl(data.path)
+    const avatarUrl = publicData.publicUrl
+
+    // Update profile table with new avatar URL
+    await this.updateProfile({ avatar_path: avatarUrl })
+    return avatarUrl
+  },
+
+  async removeAvatar(): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    await this.updateProfile({ avatar_path: null })
+  },
 }

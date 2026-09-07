@@ -1,10 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { authService } from '../../services/supabase/authService'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
-import { BrandLogo } from '../../components/shared/BrandLogo'
-import { User, Phone, Mail, Shield, Bell, CheckCircle2, AlertCircle, LogOut } from 'lucide-react'
+import {
+  User,
+  Phone,
+  Mail,
+  Bell,
+  CheckCircle2,
+  AlertCircle,
+  LogOut,
+  Camera,
+  Trash2,
+  Upload,
+} from 'lucide-react'
 
 export const SettingsPage: React.FC = () => {
   const { profile, refreshProfile, signOut } = useAuth()
@@ -12,7 +22,17 @@ export const SettingsPage: React.FC = () => {
   const [fullName, setFullName] = useState(profile?.full_name || '')
   const [phone, setPhone] = useState(profile?.phone || '')
   const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || '')
+      setPhone(profile.phone || '')
+    }
+  }, [profile])
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,15 +40,71 @@ export const SettingsPage: React.FC = () => {
     setMessage(null)
     try {
       await authService.updateProfile({
-        full_name: fullName,
-        phone,
+        full_name: fullName.trim(),
+        phone: phone.trim(),
       })
       await refreshProfile()
-      setMessage('Profile updated successfully!')
+      setMessage({ type: 'success', text: 'Profile details updated successfully!' })
     } catch (err: unknown) {
-      setMessage((err as { message?: string })?.message || 'Failed to update profile.')
+      setMessage({
+        type: 'error',
+        text: (err as { message?: string })?.message || 'Failed to update profile.',
+      })
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Reset input so re-selecting same file triggers onChange
+    e.target.value = ''
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Profile photo size must be less than 5MB.' })
+      return
+    }
+
+    // Validate type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Please select a valid image file (JPG, PNG, WebP).' })
+      return
+    }
+
+    setIsUploadingPhoto(true)
+    setMessage(null)
+
+    try {
+      await authService.uploadAvatar(file)
+      await refreshProfile()
+      setMessage({ type: 'success', text: 'Profile photo updated successfully!' })
+    } catch (err: unknown) {
+      setMessage({
+        type: 'error',
+        text: (err as { message?: string })?.message || 'Failed to upload profile photo.',
+      })
+    } finally {
+      setIsUploadingPhoto(false)
+    }
+  }
+
+  const handleRemovePhoto = async () => {
+    setIsUploadingPhoto(true)
+    setMessage(null)
+    try {
+      await authService.removeAvatar()
+      await refreshProfile()
+      setMessage({ type: 'success', text: 'Profile photo removed.' })
+    } catch (err: unknown) {
+      setMessage({
+        type: 'error',
+        text: (err as { message?: string })?.message || 'Failed to remove profile photo.',
+      })
+    } finally {
+      setIsUploadingPhoto(false)
     }
   }
 
@@ -44,26 +120,105 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {message && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{message}</span>
+        <div
+          className={`p-3.5 border text-xs rounded-xl flex items-center gap-2 ${
+            message.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
+          }`}
+        >
+          {message.type === 'success' ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          ) : (
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          )}
+          <span>{message.text}</span>
         </div>
       )}
 
-      {/* Profile Form */}
+      {/* Profile Form & Photo Upload Card */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-card p-6 space-y-6">
-        <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-          <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-800 font-extrabold text-xl flex items-center justify-center">
-            {profile?.full_name?.charAt(0) || 'O'}
+        {/* Profile Header & Photo Management */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div className="flex items-center gap-4">
+            {/* Avatar with Camera Overlay */}
+            <div className="relative group shrink-0">
+              {profile?.avatar_path ? (
+                <img
+                  src={profile.avatar_path}
+                  alt={profile.full_name}
+                  className="w-16 h-16 rounded-2xl object-cover border-2 border-blue-100 shadow-sm"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-blue-100 text-blue-800 font-extrabold text-2xl flex items-center justify-center border-2 border-blue-200 shadow-sm">
+                  {profile?.full_name?.charAt(0) || 'O'}
+                </div>
+              )}
+
+              {/* Hover / Tap camera badge */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingPhoto}
+                className="absolute -bottom-1.5 -right-1.5 p-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all cursor-pointer disabled:opacity-50"
+                title="Change Photo"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-base sm:text-lg text-text-primary">
+                {profile?.full_name || 'Hostel Owner'}
+              </h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-brand capitalize border border-blue-200">
+                  {profile?.role || 'Owner'}
+                </span>
+                <span className="text-[11px] text-text-secondary">{profile?.email}</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-base text-text-primary">{profile?.full_name}</h3>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-brand capitalize border border-blue-200">
-              {profile?.role || 'Owner'}
-            </span>
+
+          {/* Photo Action Buttons */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              onChange={handlePhotoSelect}
+              className="hidden"
+            />
+
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              isLoading={isUploadingPhoto}
+              leftIcon={<Upload className="w-3.5 h-3.5" />}
+              className="text-xs flex-1 sm:flex-none"
+            >
+              {profile?.avatar_path ? 'Change Photo' : 'Upload Photo'}
+            </Button>
+
+            {profile?.avatar_path && (
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={handleRemovePhoto}
+                disabled={isUploadingPhoto}
+                className="text-rose-600 hover:bg-rose-50 text-xs px-2.5"
+                title="Remove profile photo"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
           </div>
         </div>
 
+        {/* Text Form */}
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <Input
             label="Full Name"
@@ -78,6 +233,7 @@ export const SettingsPage: React.FC = () => {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            placeholder="e.g. 03095923110"
             leftIcon={<Phone className="w-4 h-4" />}
           />
 
