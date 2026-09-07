@@ -21,8 +21,29 @@ export const ResidentProfilePage: React.FC = () => {
 
   if (!resident) {
     return (
-      <div className="bg-white p-8 rounded-2xl text-center">
-        <p className="text-xs text-text-secondary">Resident record not linked yet.</p>
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="space-y-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
+            My Resident Profile
+          </h2>
+          <p className="text-xs text-text-secondary">
+            Your account is not linked to a hostel admission record yet.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-blue-200 shadow-card p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-base text-text-primary">Admission Record Not Linked</h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Please visit your <a href="/resident/dashboard" className="text-blue-brand underline font-semibold">Resident Dashboard</a> to connect your account using your <strong>Resident ID</strong>, <strong>CNIC</strong>, or registered <strong>Phone Number</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }

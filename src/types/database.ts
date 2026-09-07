@@ -521,6 +521,18 @@ export interface Database {
         }
         Returns: boolean
       }
+      link_resident_account: {
+        Args: {
+          p_identifier: string
+        }
+        Returns: {
+          success: boolean
+          resident_id: string
+          resident_code: string
+          full_name: string
+          hostel_id: string
+        }
+      }
     }
   }
 }

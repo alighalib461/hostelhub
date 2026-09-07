@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { residentsService } from '../../services/residents/residentsService'
 import { ResidentWithDetails } from '../../types/models'
-import { StatCard } from '../../components/shared/StatCard'
 import { Button } from '../../components/ui/Button'
+import { Input } from '../../components/ui/Input'
 import { StatusBadge } from '../../components/shared/StatusBadge'
 import { Skeleton } from '../../components/ui/Skeleton'
 import {
@@ -25,13 +25,20 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
+  Link as LinkIcon,
+  KeyRound,
 } from 'lucide-react'
 
 export const ResidentDashboardPage: React.FC = () => {
-  const { profile } = useAuth()
+  const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [resident, setResident] = useState<ResidentWithDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  // Linking State
+  const [linkInput, setLinkInput] = useState('')
+  const [isLinking, setIsLinking] = useState(false)
+  const [linkMessage, setLinkMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const currentMonth = getCurrentFeeMonth()
 
@@ -48,6 +55,32 @@ export const ResidentDashboardPage: React.FC = () => {
       console.error('Failed to load resident data:', err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleLinkRecord = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!linkInput.trim()) return
+
+    setIsLinking(true)
+    setLinkMessage(null)
+
+    try {
+      const result = await residentsService.linkResidentAccount(linkInput.trim())
+      setLinkMessage({
+        type: 'success',
+        text: `Successfully linked record for ${result.full_name} (${result.resident_code})!`,
+      })
+      setLinkInput('')
+      await refreshProfile()
+      await loadResidentData()
+    } catch (err: unknown) {
+      setLinkMessage({
+        type: 'error',
+        text: (err as { message?: string })?.message || 'Failed to link resident record. Please verify your details.',
+      })
+    } finally {
+      setIsLinking(false)
     }
   }
 
@@ -82,14 +115,70 @@ export const ResidentDashboardPage: React.FC = () => {
           <p className="text-xs text-slate-300">
             {resident ? (
               <span>
-                Resident ID: <strong className="text-white font-mono">{resident.resident_id}</strong> • Assigned to <strong className="text-white">{resident.hostel?.name}</strong>
+                Resident ID: <strong className="text-white font-mono">{resident.resident_id}</strong> • Assigned to{' '}
+                <strong className="text-white">{resident.hostel?.name}</strong>
               </span>
             ) : (
-              'Your profile is registered with HostelHUB'
+              'Connect your official hostel admission file to access your room details, fees, and receipts'
             )}
           </p>
         </div>
       </div>
+
+      {/* Account Linking Notice (Shown when resident record is not linked yet) */}
+      {!resident && (
+        <div className="bg-white rounded-2xl border border-blue-200 shadow-card p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+              <LinkIcon className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-base text-text-primary">Connect Your Hostel Resident Record</h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Enter your <strong>Resident ID</strong> (e.g. <code>RES-000004</code>), <strong>CNIC Number</strong>, or <strong>registered phone number</strong> given during hostel admission.
+              </p>
+            </div>
+          </div>
+
+          {linkMessage && (
+            <div
+              className={`p-3 border text-xs rounded-xl flex items-start gap-2 ${
+                linkMessage.type === 'success'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                  : 'bg-rose-50 border-rose-200 text-rose-800'
+              }`}
+            >
+              {linkMessage.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              )}
+              <span>{linkMessage.text}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLinkRecord} className="flex flex-col sm:flex-row gap-3 pt-1">
+            <Input
+              placeholder="e.g. RES-000004 or 13102-0405024-1 or 03095923110"
+              required
+              value={linkInput}
+              onChange={(e) => setLinkInput(e.target.value)}
+              className="flex-1"
+              leftIcon={<KeyRound className="w-4 h-4" />}
+            />
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isLinking}
+              disabled={!linkInput.trim()}
+              className="whitespace-nowrap"
+            >
+              Link Record
+            </Button>
+          </form>
+        </div>
+      )}
 
       {/* Quick Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -160,7 +249,7 @@ export const ResidentDashboardPage: React.FC = () => {
             <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
               Recent Payment
             </span>
-            <div className="w-8 h-8 rounded-xl bg-teal-subtle text-teal-accent flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
@@ -195,7 +284,7 @@ export const ResidentDashboardPage: React.FC = () => {
         {[
           { label: 'My Hostel', path: '/resident/hostel', icon: <Building2 className="w-5 h-5 text-blue-brand" /> },
           { label: 'Fee History', path: '/resident/fees', icon: <CreditCard className="w-5 h-5 text-emerald-600" /> },
-          { label: 'Receipts', path: '/resident/receipts', icon: <Receipt className="w-5 h-5 text-teal-accent" /> },
+          { label: 'Receipts', path: '/resident/receipts', icon: <Receipt className="w-5 h-5 text-teal-600" /> },
           { label: 'Verified Docs', path: '/resident/documents', icon: <FileText className="w-5 h-5 text-amber-600" /> },
         ].map((item, idx) => (
           <div

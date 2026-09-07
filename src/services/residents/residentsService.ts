@@ -223,11 +223,20 @@ export const residentsService = {
     return data
   },
 
+  async linkResidentAccount(identifier: string) {
+    const { data, error } = await supabase.rpc('link_resident_account', {
+      p_identifier: identifier.trim(),
+    })
+
+    if (error) throw new Error(formatErrorMessage(error))
+    return data
+  },
+
   async getResidentForCurrentUser(): Promise<ResidentWithDetails | null> {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
-    // Find resident linked by user_id or email
+    // 1. Find resident linked by user_id
     let { data, error } = await supabase
       .from('residents')
       .select(`
@@ -245,31 +254,46 @@ export const residentsService = {
       .eq('user_id', user.id)
       .maybeSingle()
 
+    // 2. If not found, attempt auto-linking if profile has a registered phone number
     if (!data) {
-      // Try finding by phone or email if not linked
-      const { data: profile } = await supabase.from('profiles').select('phone').eq('id', user.id).single()
-      if (profile?.phone) {
-        const { data: byPhone } = await supabase
-          .from('residents')
-          .select(`
-            *,
-            hostel:hostels (*),
-            current_assignment:resident_assignments (
-              *,
-              room:rooms (*),
-              bed:beds (*)
-            ),
-            documents:resident_documents (*),
-            fee_charges (*),
-            payments (*)
-          `)
-          .eq('phone', profile.phone)
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('phone')
+          .eq('id', user.id)
           .maybeSingle()
-        if (byPhone) {
-          data = byPhone
-          // Link user_id
-          await supabase.from('residents').update({ user_id: user.id }).eq('id', byPhone.id)
+
+        if (profile?.phone && profile.phone.trim()) {
+          const linkResult = await supabase.rpc('link_resident_account', {
+            p_identifier: profile.phone.trim(),
+          })
+
+          if (linkResult.data?.success) {
+            // Re-fetch after successful linking
+            const { data: refetched } = await supabase
+              .from('residents')
+              .select(`
+                *,
+                hostel:hostels (*),
+                current_assignment:resident_assignments (
+                  *,
+                  room:rooms (*),
+                  bed:beds (*)
+                ),
+                documents:resident_documents (*),
+                fee_charges (*),
+                payments (*)
+              `)
+              .eq('user_id', user.id)
+              .maybeSingle()
+
+            if (refetched) {
+              data = refetched
+            }
+          }
         }
+      } catch {
+        // Ignore automatic link failure, user can link manually via UI
       }
     }
 
