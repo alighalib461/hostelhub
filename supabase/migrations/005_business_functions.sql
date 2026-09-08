@@ -541,4 +541,61 @@ BEGIN
     'fee_status', v_new_status
   );
 END;
-\$\$;
+$$;
+
+-- 5. LINK RESIDENT ACCOUNT
+CREATE OR REPLACE FUNCTION public.link_resident_account(
+  p_identifier TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_caller_id UUID;
+  v_clean_id TEXT;
+  v_resident RECORD;
+BEGIN
+  v_caller_id := auth.uid();
+  IF v_caller_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required to link resident account';
+  END IF;
+
+  v_clean_id := TRIM(p_identifier);
+  IF v_clean_id = '' THEN
+    RAISE EXCEPTION 'Resident identifier (Resident ID, CNIC, or Phone) is required';
+  END IF;
+
+  -- Search resident record by resident_id, cnic, or phone
+  SELECT id, resident_id, full_name, hostel_id, user_id
+  INTO v_resident
+  FROM public.residents
+  WHERE resident_id ILIKE v_clean_id
+     OR cnic = v_clean_id
+     OR phone = v_clean_id
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'No hostel resident record found matching identifier "%"', v_clean_id;
+  END IF;
+
+  IF v_resident.user_id IS NOT NULL AND v_resident.user_id <> v_caller_id THEN
+    RAISE EXCEPTION 'This resident record is already linked with another account';
+  END IF;
+
+  -- Link caller's user_id to the resident record
+  UPDATE public.residents
+  SET user_id = v_caller_id, updated_at = now()
+  WHERE id = v_resident.id;
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'resident_id', v_resident.id,
+    'resident_code', v_resident.resident_id,
+    'full_name', v_resident.full_name,
+    'hostel_id', v_resident.hostel_id
+  );
+END;
+$$;
+

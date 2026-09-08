@@ -1,17 +1,28 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import { Mail, Lock, LogIn, Sparkles, User, Shield, AlertCircle } from 'lucide-react'
+import { Mail, Lock, LogIn, User, Shield, AlertCircle, Building2, UserCheck } from 'lucide-react'
 
 export const LoginPage: React.FC = () => {
   const { signIn } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const initialRole = searchParams.get('role') === 'resident' ? 'resident' : 'owner'
+  const [role, setRole] = useState<'owner' | 'resident'>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role')
+    if (roleParam === 'resident' || roleParam === 'owner') {
+      setRole(roleParam)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,39 +30,22 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const { profile: signedInProfile } = await signIn(email.trim(), password)
-      const userRole = signedInProfile?.role || 'owner'
+      const { profile: signedInProfile, user } = await signIn(email.trim(), password)
+      
+      // Determine user role with robust fallback
+      const userRole =
+        signedInProfile?.role ||
+        (user?.user_metadata?.role as 'owner' | 'resident') ||
+        role
+
       if (userRole === 'resident') {
         navigate('/resident/dashboard', { replace: true })
       } else {
         navigate('/app/dashboard', { replace: true })
       }
     } catch (err: unknown) {
-      setError((err as { message?: string })?.message || 'Login failed. Please check credentials.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Quick Demo Access Handler
-  const handleQuickDemo = async (demoRole: 'owner' | 'resident') => {
-    setError(null)
-    setIsLoading(true)
-    const demoEmail = demoRole === 'owner' ? 'owner@hostelhub.demo' : 'resident@hostelhub.demo'
-    const demoPassword = 'Password123!'
-
-    try {
-      const { profile: demoProfile } = await signIn(demoEmail, demoPassword)
-      const userRole = demoProfile?.role || demoRole
-      if (userRole === 'resident') {
-        navigate('/resident/dashboard', { replace: true })
-      } else {
-        navigate('/app/dashboard', { replace: true })
-      }
-    } catch {
-      setEmail(demoEmail)
-      setPassword(demoPassword)
-      setError('Demo account not registered yet. You can sign up using this email or use your existing account.')
+      const msg = (err as { message?: string })?.message || 'Login failed. Please check your credentials.'
+      setError(msg)
     } finally {
       setIsLoading(false)
     }
@@ -61,39 +55,53 @@ export const LoginPage: React.FC = () => {
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
       <div className="space-y-1 text-center">
         <h2 className="text-2xl font-bold text-[#172033] tracking-tight">Welcome to HostelHUB</h2>
-        <p className="text-xs text-[#64748B]">Sign in to manage your hostels or view your resident account</p>
+        <p className="text-xs text-[#64748B]">Sign in to manage your hostels or access your resident account</p>
       </div>
 
-      {/* Quick Demo Access Bar */}
-      <div className="p-3.5 bg-blue-50/80 border border-blue-200/80 rounded-xl space-y-2">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-900">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-          <span>Quick 1-Click Demo Access</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
+      {/* Role Selection Tabs (OWNER & RESIDENT) */}
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+          <button
             type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => handleQuickDemo('owner')}
-            leftIcon={<Shield className="w-3.5 h-3.5 text-teal-400" />}
-            disabled={isLoading}
-            className="text-xs py-1.5"
+            onClick={() => setRole('owner')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all ${
+              role === 'owner'
+                ? 'bg-[#0D1B2A] text-white shadow-sm'
+                : 'text-slate-600 hover:text-[#172033]'
+            }`}
           >
-            Owner Demo
-          </Button>
-          <Button
+            <Shield className={`w-4 h-4 ${role === 'owner' ? 'text-teal-400' : 'text-slate-500'}`} />
+            <span>OWNER</span>
+          </button>
+
+          <button
             type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleQuickDemo('resident')}
-            leftIcon={<User className="w-3.5 h-3.5 text-blue-600" />}
-            disabled={isLoading}
-            className="text-xs py-1.5"
+            onClick={() => setRole('resident')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all ${
+              role === 'resident'
+                ? 'bg-[#0D1B2A] text-white shadow-sm'
+                : 'text-slate-600 hover:text-[#172033]'
+            }`}
           >
-            Resident Demo
-          </Button>
+            <User className={`w-4 h-4 ${role === 'resident' ? 'text-blue-400' : 'text-slate-500'}`} />
+            <span>RESIDENT</span>
+          </button>
         </div>
+
+        {/* Dynamic portal info hint */}
+        <p className="text-[11px] text-center text-slate-500">
+          {role === 'owner' ? (
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <Building2 className="w-3.5 h-3.5 text-teal-600" />
+              Hostel Owner & Manager Portal
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+              Resident Portal (Room, Fees & Receipts)
+            </span>
+          )}
+        </p>
       </div>
 
       {error && (
@@ -138,10 +146,11 @@ export const LoginPage: React.FC = () => {
 
       <div className="pt-4 border-t border-slate-100 text-center text-xs text-[#64748B]">
         Don't have an account yet?{' '}
-        <Link to="/signup" className="text-[#2563EB] font-semibold hover:underline">
+        <Link to={`/signup?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
           Create Account
         </Link>
       </div>
     </div>
   )
 }
+

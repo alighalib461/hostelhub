@@ -41,11 +41,11 @@ export const authService = {
     // Fallback: If DB row is still syncing, synthesize profile from user metadata
     if (user) {
       const meta = user.user_metadata || {}
-      const fallbackRole = (meta.role as 'owner' | 'resident') || 'owner'
+      const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
       return {
         id: user.id,
         email: user.email || '',
-        full_name: meta.full_name || meta.name || 'Hostel Owner',
+        full_name: meta.full_name || meta.name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
         phone: meta.phone || null,
         role: fallbackRole,
         avatar_path: meta.avatar_path || null,

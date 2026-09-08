@@ -33,18 +33,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUser(currentUser)
     try {
-      const userProfile = await authService.getCurrentProfile(currentUser.id)
+      let userProfile = await authService.getCurrentProfile(currentUser.id)
+      if (!userProfile) {
+        const meta = currentUser.user_metadata || {}
+        const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
+        userProfile = {
+          id: currentUser.id,
+          email: currentUser.email || '',
+          full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
+          phone: meta.phone || null,
+          role: fallbackRole,
+          avatar_path: null,
+          created_at: currentUser.created_at || new Date().toISOString(),
+          updated_at: currentUser.created_at || new Date().toISOString(),
+        }
+      }
       setProfile(userProfile)
       return userProfile
     } catch (err) {
       console.error('Failed to load user profile:', err)
       const meta = currentUser.user_metadata || {}
+      const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
       const fallbackProfile: Profile = {
         id: currentUser.id,
         email: currentUser.email || '',
-        full_name: meta.full_name || 'Hostel Owner',
+        full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
         phone: meta.phone || null,
-        role: (meta.role as 'owner' | 'resident') || 'owner',
+        role: fallbackRole,
         avatar_path: null,
         created_at: currentUser.created_at || new Date().toISOString(),
         updated_at: currentUser.created_at || new Date().toISOString(),

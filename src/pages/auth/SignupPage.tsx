@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import { Mail, Lock, User, Phone, Shield, UserCheck, AlertCircle } from 'lucide-react'
+import { Mail, Lock, User, Phone, Shield, UserCheck, AlertCircle, Building2 } from 'lucide-react'
 
 export const SignupPage: React.FC = () => {
   const { signUp } = useAuth()
   const navigate = useNavigate()
-  const [role, setRole] = useState<'owner' | 'resident'>('owner')
+  const [searchParams] = useSearchParams()
+
+  const initialRole = searchParams.get('role') === 'resident' ? 'resident' : 'owner'
+  const [role, setRole] = useState<'owner' | 'resident'>(initialRole)
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -16,6 +19,13 @@ export const SignupPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role')
+    if (roleParam === 'resident' || roleParam === 'owner') {
+      setRole(roleParam)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,8 +42,14 @@ export const SignupPage: React.FC = () => {
 
     setIsLoading(true)
     try {
-      const { profile: createdProfile } = await signUp(email.trim(), password, fullName.trim(), role, phone.trim())
-      const userRole = createdProfile?.role || role
+      const { profile: createdProfile, user } = await signUp(
+        email.trim(),
+        password,
+        fullName.trim(),
+        role,
+        phone.trim()
+      )
+      const userRole = createdProfile?.role || (user?.user_metadata?.role as 'owner' | 'resident') || role
       if (userRole === 'owner') {
         navigate('/app/dashboard', { replace: true })
       } else {
@@ -53,33 +69,49 @@ export const SignupPage: React.FC = () => {
         <p className="text-xs text-[#64748B]">Choose your role to get started with digitized hostel management</p>
       </div>
 
-      {/* Role Selection Tabs */}
-      <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
-        <button
-          type="button"
-          onClick={() => setRole('owner')}
-          className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-            role === 'owner'
-              ? 'bg-white text-[#0D1B2A] shadow-xs'
-              : 'text-slate-600 hover:text-[#172033]'
-          }`}
-        >
-          <Shield className={`w-4 h-4 ${role === 'owner' ? 'text-[#2563EB]' : ''}`} />
-          <span>Hostel Owner</span>
-        </button>
+      {/* Role Selection Tabs (OWNER & RESIDENT) */}
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setRole('owner')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all ${
+              role === 'owner'
+                ? 'bg-[#0D1B2A] text-white shadow-sm'
+                : 'text-slate-600 hover:text-[#172033]'
+            }`}
+          >
+            <Shield className={`w-4 h-4 ${role === 'owner' ? 'text-teal-400' : 'text-slate-500'}`} />
+            <span>OWNER</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setRole('resident')}
-          className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-            role === 'resident'
-              ? 'bg-white text-[#0D1B2A] shadow-xs'
-              : 'text-slate-600 hover:text-[#172033]'
-          }`}
-        >
-          <UserCheck className={`w-4 h-4 ${role === 'resident' ? 'text-[#16A085]' : ''}`} />
-          <span>Resident</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setRole('resident')}
+            className={`flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-bold transition-all ${
+              role === 'resident'
+                ? 'bg-[#0D1B2A] text-white shadow-sm'
+                : 'text-slate-600 hover:text-[#172033]'
+            }`}
+          >
+            <User className={`w-4 h-4 ${role === 'resident' ? 'text-blue-400' : 'text-slate-500'}`} />
+            <span>RESIDENT</span>
+          </button>
+        </div>
+
+        <p className="text-[11px] text-center text-slate-500">
+          {role === 'owner' ? (
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <Building2 className="w-3.5 h-3.5 text-teal-600" />
+              Registering as Hostel Owner & Manager
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-slate-600">
+              <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+              Registering as Hostel Resident
+            </span>
+          )}
+        </p>
       </div>
 
       {error && (
@@ -154,10 +186,11 @@ export const SignupPage: React.FC = () => {
 
       <div className="pt-4 border-t border-slate-100 text-center text-xs text-[#64748B]">
         Already have an account?{' '}
-        <Link to="/login" className="text-[#2563EB] font-semibold hover:underline">
+        <Link to={`/login?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
           Sign In
         </Link>
       </div>
     </div>
   )
 }
+

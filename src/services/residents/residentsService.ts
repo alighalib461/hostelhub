@@ -224,12 +224,54 @@ export const residentsService = {
   },
 
   async linkResidentAccount(identifier: string) {
-    const { data, error } = await supabase.rpc('link_resident_account', {
-      p_identifier: identifier.trim(),
-    })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('You must be signed in to link an account')
 
-    if (error) throw new Error(formatErrorMessage(error))
-    return data
+    const cleanId = identifier.trim()
+
+    // 1. Try DB RPC first
+    try {
+      const { data, error } = await supabase.rpc('link_resident_account', {
+        p_identifier: cleanId,
+      })
+      if (!error && data) {
+        return data
+      }
+    } catch {
+      // Continue to direct fallback
+    }
+
+    // 2. Resilient Direct Query Fallback
+    const { data: matched, error: findError } = await supabase
+      .from('residents')
+      .select('id, resident_id, full_name, hostel_id, user_id')
+      .or(`resident_id.eq.${cleanId},cnic.eq.${cleanId},phone.eq.${cleanId}`)
+      .maybeSingle()
+
+    if (findError || !matched) {
+      throw new Error(`No resident record found for "${cleanId}". Please check your Resident ID, CNIC, or Phone.`)
+    }
+
+    if (matched.user_id && matched.user_id !== user.id) {
+      throw new Error('This resident record is already linked with another user account.')
+    }
+
+    const { error: updateError } = await supabase
+      .from('residents')
+      .update({ user_id: user.id })
+      .eq('id', matched.id)
+
+    if (updateError) {
+      throw new Error(formatErrorMessage(updateError))
+    }
+
+    return {
+      success: true,
+      resident_id: matched.id,
+      resident_code: matched.resident_id,
+      full_name: matched.full_name,
+      hostel_id: matched.hostel_id,
+    }
   },
 
   async getResidentForCurrentUser(): Promise<ResidentWithDetails | null> {
@@ -254,22 +296,19 @@ export const residentsService = {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    // 2. If not found, attempt auto-linking if profile has a registered phone number
+    // 2. If not found, attempt auto-linking if profile has a registered phone number or email
     if (!data) {
       try {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('phone')
+          .select('phone, email')
           .eq('id', user.id)
           .maybeSingle()
 
-        if (profile?.phone && profile.phone.trim()) {
-          const linkResult = await supabase.rpc('link_resident_account', {
-            p_identifier: profile.phone.trim(),
-          })
-
-          if (linkResult.data?.success) {
-            // Re-fetch after successful linking
+        const phone = profile?.phone?.trim()
+        if (phone) {
+          try {
+            await this.linkResidentAccount(phone)
             const { data: refetched } = await supabase
               .from('residents')
               .select(`
@@ -290,6 +329,8 @@ export const residentsService = {
             if (refetched) {
               data = refetched
             }
+          } catch {
+            // Ignore auto-link error
           }
         }
       } catch {
