@@ -170,11 +170,12 @@ export const FeesPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
           <Button
             variant="outline"
             size="md"
-            leftIcon={<Sparkles className="w-4 h-4 text-blue-brand" />}
+            className="w-full sm:w-auto justify-center text-xs sm:text-sm py-2 px-3 sm:px-4"
+            leftIcon={<Sparkles className="w-4 h-4 text-blue-brand shrink-0" />}
             onClick={() => {
               setGenHostelId(selectedHostelId !== 'all' ? selectedHostelId : hostels[0]?.id || '')
               setIsGenerateModalOpen(true)
@@ -186,7 +187,8 @@ export const FeesPage: React.FC = () => {
           <Button
             variant="primary"
             size="md"
-            leftIcon={<CreditCard className="w-4 h-4" />}
+            className="w-full sm:w-auto justify-center text-xs sm:text-sm py-2 px-3 sm:px-4"
+            leftIcon={<CreditCard className="w-4 h-4 shrink-0" />}
             onClick={() => navigate('/app/payments')}
           >
             View Payment Transactions

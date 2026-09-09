@@ -48,7 +48,7 @@ export const PublicRegisterPage: React.FC = () => {
   useEffect(() => {
     if (hostelId) {
       hostelsService
-        .getHostelById(hostelId)
+        .getPublicHostelInfo(hostelId)
         .then((data) => setHostel(data))
         .catch((err) => console.error('Failed to load hostel info:', err))
         .finally(() => setIsLoadingHostel(false))

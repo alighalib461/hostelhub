@@ -3,7 +3,19 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import { Mail, Lock, User, Phone, Shield, UserCheck, AlertCircle, Building2 } from 'lucide-react'
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Shield,
+  UserCheck,
+  AlertCircle,
+  Building2,
+  Eye,
+  EyeOff,
+  UserPlus,
+} from 'lucide-react'
 
 export const SignupPage: React.FC = () => {
   const { signUp } = useAuth()
@@ -17,6 +29,8 @@ export const SignupPage: React.FC = () => {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -32,18 +46,19 @@ export const SignupPage: React.FC = () => {
     setError(null)
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+      setError('Passwords do not match. Please ensure both passwords match exactly.')
       return
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.')
+      setError('Password must be at least 6 characters long.')
       return
     }
 
     setIsLoading(true)
     try {
+      const cleanEmail = email.trim().toLowerCase()
       const { profile: createdProfile, user } = await signUp(
-        email.trim(),
+        cleanEmail,
         password,
         fullName.trim(),
         role,
@@ -101,12 +116,12 @@ export const SignupPage: React.FC = () => {
 
         <p className="text-[11px] text-center text-slate-500">
           {role === 'owner' ? (
-            <span className="inline-flex items-center gap-1 text-slate-600">
+            <span className="inline-flex items-center gap-1 text-teal-700 font-semibold bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">
               <Building2 className="w-3.5 h-3.5 text-teal-600" />
               Registering as Hostel Owner & Manager
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-slate-600">
+            <span className="inline-flex items-center gap-1 text-blue-700 font-semibold bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
               <UserCheck className="w-3.5 h-3.5 text-blue-600" />
               Registering as Hostel Resident
             </span>
@@ -127,6 +142,7 @@ export const SignupPage: React.FC = () => {
           type="text"
           placeholder="e.g. Muhammad Ali"
           required
+          autoComplete="name"
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           leftIcon={<User className="w-4 h-4" />}
@@ -136,6 +152,7 @@ export const SignupPage: React.FC = () => {
           label="Phone Number"
           type="tel"
           placeholder="0300-1234567"
+          autoComplete="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           leftIcon={<Phone className="w-4 h-4" />}
@@ -146,6 +163,7 @@ export const SignupPage: React.FC = () => {
           type="email"
           placeholder="name@example.com"
           required
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           leftIcon={<Mail className="w-4 h-4" />}
@@ -154,22 +172,44 @@ export const SignupPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             required
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             leftIcon={<Lock className="w-4 h-4" />}
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="p-1 hover:text-slate-600 text-slate-400 focus:outline-none"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            }
           />
 
           <Input
             label="Confirm Password"
-            type="password"
+            type={showConfirmPassword ? 'text' : 'password'}
             placeholder="••••••••"
             required
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             leftIcon={<Lock className="w-4 h-4" />}
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="p-1 hover:text-slate-600 text-slate-400 focus:outline-none"
+                title={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            }
           />
         </div>
 
@@ -190,18 +230,18 @@ export const SignupPage: React.FC = () => {
           size="md"
           className="w-full mt-2"
           isLoading={isLoading}
+          leftIcon={<UserPlus className="w-4 h-4" />}
         >
-          Create Account
+          Create {role === 'owner' ? 'Owner' : 'Resident'} Account
         </Button>
       </form>
 
       <div className="pt-4 border-t border-slate-100 text-center text-xs text-[#64748B]">
         Already have an account?{' '}
         <Link to={`/login?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
-          Sign In
+          Sign In as {role === 'owner' ? 'Owner' : 'Resident'}
         </Link>
       </div>
     </div>
   )
 }
-

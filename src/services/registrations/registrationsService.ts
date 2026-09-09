@@ -42,46 +42,22 @@ export const registrationsService = {
     cnic_front_path?: string | null
     cnic_back_path?: string | null
   }) {
-    const { data: request, error } = await supabase
-      .from('registration_requests')
-      .insert({
-        hostel_id: payload.hostel_id,
-        full_name: payload.full_name,
-        father_name: payload.father_name,
-        cnic: payload.cnic,
-        phone: payload.phone,
-        permanent_address: payload.permanent_address,
-        emergency_contact_name: payload.emergency_contact_name,
-        emergency_contact_phone: payload.emergency_contact_phone,
-        profile_photo_path: payload.profile_photo_path || null,
-        status: 'pending',
-      })
-      .select()
-      .single()
+    const { data, error } = await supabase.rpc('submit_registration_request', {
+      p_hostel_id: payload.hostel_id,
+      p_full_name: payload.full_name,
+      p_father_name: payload.father_name,
+      p_cnic: payload.cnic,
+      p_phone: payload.phone,
+      p_permanent_address: payload.permanent_address,
+      p_emergency_contact_name: payload.emergency_contact_name,
+      p_emergency_contact_phone: payload.emergency_contact_phone,
+      p_profile_photo_path: payload.profile_photo_path || null,
+      p_cnic_front_path: payload.cnic_front_path || null,
+      p_cnic_back_path: payload.cnic_back_path || null,
+    })
 
     if (error) throw new Error(formatErrorMessage(error))
-
-    // Attach documents
-    if (payload.cnic_front_path && request) {
-      await supabase.from('registration_documents').insert({
-        registration_request_id: request.id,
-        document_type: 'cnic_front',
-        storage_path: payload.cnic_front_path,
-        file_name: 'cnic-front.jpg',
-        mime_type: 'image/jpeg',
-      })
-    }
-    if (payload.cnic_back_path && request) {
-      await supabase.from('registration_documents').insert({
-        registration_request_id: request.id,
-        document_type: 'cnic_back',
-        storage_path: payload.cnic_back_path,
-        file_name: 'cnic-back.jpg',
-        mime_type: 'image/jpeg',
-      })
-    }
-
-    return request
+    return data
   },
 
   async approveRegistration(payload: {

@@ -3,7 +3,19 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import { Mail, Lock, LogIn, User, Shield, AlertCircle, Building2, UserCheck, CheckCircle2 } from 'lucide-react'
+import {
+  Mail,
+  Lock,
+  LogIn,
+  User,
+  Shield,
+  AlertCircle,
+  Building2,
+  UserCheck,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
 
 export const LoginPage: React.FC = () => {
   const { signIn } = useAuth()
@@ -15,6 +27,7 @@ export const LoginPage: React.FC = () => {
   const [role, setRole] = useState<'owner' | 'resident'>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -31,8 +44,9 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true)
 
     try {
-      const { profile: signedInProfile, user } = await signIn(email.trim(), password)
-      
+      const cleanEmail = email.trim().toLowerCase()
+      const { profile: signedInProfile, user } = await signIn(cleanEmail, password)
+
       // Determine user role with robust fallback
       const userRole =
         signedInProfile?.role ||
@@ -130,6 +144,7 @@ export const LoginPage: React.FC = () => {
           type="email"
           placeholder="name@example.com"
           required
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           leftIcon={<Mail className="w-4 h-4" />}
@@ -137,12 +152,23 @@ export const LoginPage: React.FC = () => {
 
         <Input
           label="Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="••••••••"
           required
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           leftIcon={<Lock className="w-4 h-4" />}
+          rightIcon={
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="p-1 hover:text-slate-600 text-slate-400 focus:outline-none"
+              title={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          }
         />
 
         <Button
@@ -153,7 +179,7 @@ export const LoginPage: React.FC = () => {
           isLoading={isLoading}
           leftIcon={<LogIn className="w-4 h-4" />}
         >
-          Sign In
+          Sign In as {role === 'owner' ? 'Owner' : 'Resident'}
         </Button>
       </form>
 
@@ -161,7 +187,7 @@ export const LoginPage: React.FC = () => {
         <div>
           Don't have an account yet?{' '}
           <Link to={`/signup?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
-            Create Account
+            Create {role === 'owner' ? 'Owner' : 'Resident'} Account
           </Link>
         </div>
         <div className="text-[11px] text-slate-400">
@@ -174,4 +200,3 @@ export const LoginPage: React.FC = () => {
     </div>
   )
 }
-

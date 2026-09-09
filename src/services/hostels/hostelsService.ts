@@ -151,4 +151,14 @@ export const hostelsService = {
 
     if (error) throw new Error(formatErrorMessage(error))
   },
+
+  async getPublicHostelInfo(id: string): Promise<Hostel | null> {
+    const { data, error } = await supabase.rpc('get_public_hostel_info', {
+      p_hostel_id: id,
+    })
+
+    if (error) throw new Error(formatErrorMessage(error))
+    return data as Hostel | null
+  },
 }
+

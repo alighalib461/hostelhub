@@ -58,8 +58,9 @@ export const authService = {
   },
 
   async signIn(email: string, password: string) {
+    const cleanEmail = email.trim().toLowerCase()
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: cleanEmail,
       password,
     })
     if (error) throw new Error(formatErrorMessage(error))
@@ -77,27 +78,36 @@ export const authService = {
   },
 
   async signUp(email: string, password: string, fullName: string, role: 'owner' | 'resident', phone?: string) {
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = fullName.trim()
+    const cleanPhone = phone?.trim() || null
+
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: cleanEmail,
       password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: cleanName,
           role,
-          phone: phone || null,
+          phone: cleanPhone,
         },
       },
     })
     if (error) throw new Error(formatErrorMessage(error))
 
-    // Make sure profile exists or upsert
+    // Supabase returns an empty identities array if the user already exists (enumeration protection)
+    if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+      throw new Error('An account with this email address already exists. Please sign in instead.')
+    }
+
+    // Ensure profile exists or upsert
     if (data.user) {
       try {
         await supabase.from('profiles').upsert({
           id: data.user.id,
-          full_name: fullName,
-          email,
-          phone: phone || null,
+          full_name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
           role,
         })
       } catch (profileErr) {
