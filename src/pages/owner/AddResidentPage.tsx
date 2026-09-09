@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button'
 import { BedSelector } from '../../components/shared/BedSelector'
 import { formatCurrency, formatCNIC, formatPhone } from '../../utils/formatters'
 import confetti from 'canvas-confetti'
+import { DocumentCaptureCard } from '../../components/shared/DocumentCaptureCard'
 import {
   User,
   Phone,
@@ -323,45 +324,35 @@ export const AddResidentPage: React.FC = () => {
               Upload resident identification documents. These will be encrypted and saved in private storage.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* CNIC Front */}
-              <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl text-center space-y-2 hover:border-blue-400 transition-colors bg-slate-50/50">
-                <Upload className="w-5 h-5 text-slate-400 mx-auto" />
-                <p className="text-xs font-semibold text-text-primary">CNIC Front</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setCnicFront(e.target.files?.[0] || null)}
-                  className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:bg-blue-50 file:text-blue-700"
-                />
-                {cnicFront && <p className="text-[10px] text-emerald-600 font-medium truncate">{cnicFront.name}</p>}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DocumentCaptureCard
+                label="CNIC Front"
+                description="Clear front side photo showing face & CNIC number"
+                file={cnicFront}
+                onFileChange={setCnicFront}
+                filenamePrefix="cnic-front"
+                aspectRatio="card"
+              />
 
-              {/* CNIC Back */}
-              <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl text-center space-y-2 hover:border-blue-400 transition-colors bg-slate-50/50">
-                <Upload className="w-5 h-5 text-slate-400 mx-auto" />
-                <p className="text-xs font-semibold text-text-primary">CNIC Back</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setCnicBack(e.target.files?.[0] || null)}
-                  className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:bg-blue-50 file:text-blue-700"
-                />
-                {cnicBack && <p className="text-[10px] text-emerald-600 font-medium truncate">{cnicBack.name}</p>}
-              </div>
+              <DocumentCaptureCard
+                label="CNIC Back"
+                description="Back side photo showing address & family tree info"
+                file={cnicBack}
+                onFileChange={setCnicBack}
+                filenamePrefix="cnic-back"
+                aspectRatio="card"
+              />
+            </div>
 
-              {/* Profile Photo */}
-              <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl text-center space-y-2 hover:border-blue-400 transition-colors bg-slate-50/50">
-                <Upload className="w-5 h-5 text-slate-400 mx-auto" />
-                <p className="text-xs font-semibold text-text-primary">Profile Photo</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
-                  className="text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:bg-blue-50 file:text-blue-700"
-                />
-                {profilePhoto && <p className="text-[10px] text-emerald-600 font-medium truncate">{profilePhoto.name}</p>}
-              </div>
+            <div className="pt-2">
+              <DocumentCaptureCard
+                label="Profile Photo"
+                description="Recent passport-size headshot photo"
+                file={profilePhoto}
+                onFileChange={setProfilePhoto}
+                filenamePrefix="profile-photo"
+                aspectRatio="square"
+              />
             </div>
           </div>
         )}

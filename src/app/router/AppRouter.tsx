@@ -11,6 +11,7 @@ import { ResidentLayout } from '../layouts/ResidentLayout'
 import { LoginPage } from '../../pages/auth/LoginPage'
 import { SignupPage } from '../../pages/auth/SignupPage'
 import { PublicRegisterPage } from '../../pages/auth/PublicRegisterPage'
+import { AccountDeletionPage } from '../../pages/public/AccountDeletionPage'
 
 // Owner Pages
 import { OwnerDashboardPage } from '../../pages/owner/OwnerDashboardPage'
@@ -129,6 +130,10 @@ export const AppRouter: React.FC = () => {
 
       {/* Public Registration link for prospective residents */}
       <Route path="/register/:hostelId" element={<PublicRegisterPage />} />
+
+      {/* Public Account Deletion Request page (Google Play requirement) */}
+      <Route path="/delete-account" element={<AccountDeletionPage />} />
+      <Route path="/account-deletion" element={<AccountDeletionPage />} />
 
       {/* Public Auth Routes */}
       <Route

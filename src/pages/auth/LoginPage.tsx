@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../app/providers/AuthProvider'
 import { Input } from '../../components/ui/Input'
 import { Button } from '../../components/ui/Button'
-import { Mail, Lock, LogIn, User, Shield, AlertCircle, Building2, UserCheck } from 'lucide-react'
+import { Mail, Lock, LogIn, User, Shield, AlertCircle, Building2, UserCheck, CheckCircle2 } from 'lucide-react'
 
 export const LoginPage: React.FC = () => {
   const { signIn } = useAuth()
@@ -11,6 +11,7 @@ export const LoginPage: React.FC = () => {
   const [searchParams] = useSearchParams()
 
   const initialRole = searchParams.get('role') === 'resident' ? 'resident' : 'owner'
+  const isDeleted = searchParams.get('deleted') === 'true'
   const [role, setRole] = useState<'owner' | 'resident'>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -104,6 +105,18 @@ export const LoginPage: React.FC = () => {
         </p>
       </div>
 
+      {isDeleted && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-start gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+          <div>
+            <p className="font-semibold">Account Deleted Permanently</p>
+            <p className="text-[11px] text-emerald-700 mt-0.5">
+              Your HostelHub account, credentials, and associated data have been completely removed.
+            </p>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -144,11 +157,19 @@ export const LoginPage: React.FC = () => {
         </Button>
       </form>
 
-      <div className="pt-4 border-t border-slate-100 text-center text-xs text-[#64748B]">
-        Don't have an account yet?{' '}
-        <Link to={`/signup?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
-          Create Account
-        </Link>
+      <div className="pt-4 border-t border-slate-100 flex flex-col items-center gap-2 text-xs text-[#64748B]">
+        <div>
+          Don't have an account yet?{' '}
+          <Link to={`/signup?role=${role}`} className="text-[#2563EB] font-semibold hover:underline">
+            Create Account
+          </Link>
+        </div>
+        <div className="text-[11px] text-slate-400">
+          Need to remove your data?{' '}
+          <Link to="/delete-account" className="text-slate-500 hover:text-slate-700 underline">
+            Request Account Deletion
+          </Link>
+        </div>
       </div>
     </div>
   )

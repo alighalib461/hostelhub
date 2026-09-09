@@ -436,8 +436,68 @@ export interface Database {
           void_reason?: string | null
         }
       }
+      account_deletion_requests: {
+        Row: {
+          id: string
+          request_code: string
+          full_name: string
+          email: string
+          phone: string
+          role: 'owner' | 'resident' | 'other'
+          reason: string | null
+          status: 'pending' | 'completed' | 'cancelled'
+          created_at: string
+          processed_at: string | null
+        }
+        Insert: {
+          id?: string
+          request_code?: string
+          full_name: string
+          email: string
+          phone: string
+          role: 'owner' | 'resident' | 'other'
+          reason?: string | null
+          status?: 'pending' | 'completed' | 'cancelled'
+          created_at?: string
+          processed_at?: string | null
+        }
+        Update: {
+          id?: string
+          request_code?: string
+          full_name?: string
+          email?: string
+          phone?: string
+          role?: 'owner' | 'resident' | 'other'
+          reason?: string | null
+          status?: 'pending' | 'completed' | 'cancelled'
+          created_at?: string
+          processed_at?: string | null
+        }
+      }
     }
     Functions: {
+      delete_user_account: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          success: boolean
+          user_id: string
+          role: string
+          message: string
+        }
+      }
+      submit_account_deletion_request: {
+        Args: {
+          p_full_name: string
+          p_email: string
+          p_phone: string
+          p_role?: string
+          p_reason?: string | null
+        }
+        Returns: {
+          success: boolean
+          request_code: string
+        }
+      }
       record_payment: {
         Args: {
           p_fee_charge_id: string

@@ -170,4 +170,56 @@ export const authService = {
 
     await this.updateProfile({ avatar_path: null })
   },
+
+  async deleteAccount(): Promise<{ success: boolean; message: string }> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
+    // 1. Try removing avatar from storage
+    try {
+      const { data: fileList } = await supabase.storage.from('avatars').list(user.id)
+      if (fileList && fileList.length > 0) {
+        const pathsToDelete = fileList.map((f) => `${user.id}/${f.name}`)
+        await supabase.storage.from('avatars').remove(pathsToDelete)
+      }
+    } catch (storageErr) {
+      console.warn('Avatar storage cleanup note:', storageErr)
+    }
+
+    // 2. Execute secure database deletion RPC (deletes personal data, hostels/unlinks residents, profile, and auth.users)
+    const { data, error } = await supabase.rpc('delete_user_account')
+    if (error) {
+      throw new Error(formatErrorMessage(error) || 'Failed to delete account from backend.')
+    }
+
+    // 3. Clear local session
+    await supabase.auth.signOut().catch(() => {})
+
+    return (data as { success: boolean; message: string }) || {
+      success: true,
+      message: 'Account successfully deleted.',
+    }
+  },
+
+  async submitPublicDeletionRequest(payload: {
+    fullName: string
+    email: string
+    phone: string
+    role: 'owner' | 'resident' | 'other'
+    reason?: string
+  }): Promise<{ requestCode: string }> {
+    const { data, error } = await supabase.rpc('submit_account_deletion_request', {
+      p_full_name: payload.fullName.trim(),
+      p_email: payload.email.trim().toLowerCase(),
+      p_phone: payload.phone.trim(),
+      p_role: payload.role,
+      p_reason: payload.reason?.trim() || null,
+    })
+
+    if (error) throw new Error(formatErrorMessage(error))
+    
+    const result = data as { success: boolean; request_code: string }
+    return { requestCode: result.request_code }
+  },
 }
+

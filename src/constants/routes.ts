@@ -4,6 +4,8 @@ export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
   PUBLIC_REGISTER: '/register/:hostelId',
+  ACCOUNT_DELETION: '/delete-account',
+  ACCOUNT_DELETION_ALT: '/account-deletion',
 
   // Owner Routes
   OWNER: {

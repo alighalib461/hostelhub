@@ -14,7 +14,9 @@ import {
   Camera,
   Trash2,
   Upload,
+  ShieldAlert,
 } from 'lucide-react'
+import { DeleteAccountDialog } from '../../components/shared/DeleteAccountDialog'
 
 export const SettingsPage: React.FC = () => {
   const { profile, refreshProfile, signOut } = useAuth()
@@ -24,6 +26,7 @@ export const SettingsPage: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -288,7 +291,7 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         <Button
-          variant="danger"
+          variant="outline"
           size="sm"
           onClick={() => signOut()}
           leftIcon={<LogOut className="w-4 h-4" />}
@@ -296,6 +299,39 @@ export const SettingsPage: React.FC = () => {
           Sign Out
         </Button>
       </div>
+
+      {/* Danger Zone: Account Deletion */}
+      <div className="bg-white rounded-2xl border border-rose-200 shadow-card p-6 space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-rose-100 text-rose-700">
+          <ShieldAlert className="w-4 h-4 text-rose-600" />
+          <h4 className="text-xs font-bold uppercase tracking-wider">Danger Zone</h4>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h5 className="text-sm font-bold text-text-primary">Delete HostelHub Account</h5>
+            <p className="text-xs text-text-secondary leading-relaxed max-w-md">
+              Permanently delete your account, login credentials, properties, rooms, and uploaded documents. This action cannot be reversed.
+            </p>
+          </div>
+
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={() => setIsDeleteDialogOpen(true)}
+            leftIcon={<Trash2 className="w-4 h-4" />}
+            className="shrink-0"
+          >
+            Delete Account
+          </Button>
+        </div>
+      </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <DeleteAccountDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+      />
     </div>
   )
 }
