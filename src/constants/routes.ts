@@ -4,8 +4,10 @@ export const ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
   PUBLIC_REGISTER: '/register/:hostelId',
-  ACCOUNT_DELETION: '/delete-account',
-  ACCOUNT_DELETION_ALT: '/account-deletion',
+  PRIVACY_POLICY: '/privacy-policy',
+  TERMS_AND_CONDITIONS: '/terms-and-conditions',
+  ACCOUNT_DELETION: '/account-deletion',
+  ACCOUNT_DELETION_ALIAS: '/delete-account',
 
   // Owner Routes
   OWNER: {

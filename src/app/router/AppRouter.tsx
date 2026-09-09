@@ -6,11 +6,14 @@ import { useAuth } from '../providers/AuthProvider'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { OwnerLayout } from '../layouts/OwnerLayout'
 import { ResidentLayout } from '../layouts/ResidentLayout'
+import { PublicPolicyLayout } from '../layouts/PublicPolicyLayout'
 
-// Auth Pages
+// Public & Auth Pages
 import { LoginPage } from '../../pages/auth/LoginPage'
 import { SignupPage } from '../../pages/auth/SignupPage'
 import { PublicRegisterPage } from '../../pages/auth/PublicRegisterPage'
+import { PrivacyPolicyPage } from '../../pages/public/PrivacyPolicyPage'
+import { TermsAndConditionsPage } from '../../pages/public/TermsAndConditionsPage'
 import { AccountDeletionPage } from '../../pages/public/AccountDeletionPage'
 
 // Owner Pages
@@ -131,9 +134,13 @@ export const AppRouter: React.FC = () => {
       {/* Public Registration link for prospective residents */}
       <Route path="/register/:hostelId" element={<PublicRegisterPage />} />
 
-      {/* Public Account Deletion Request page (Google Play requirement) */}
-      <Route path="/delete-account" element={<AccountDeletionPage />} />
-      <Route path="/account-deletion" element={<AccountDeletionPage />} />
+      {/* Public Legal & Policy Pages (No login required, direct URL & reload support) */}
+      <Route element={<PublicPolicyLayout />}>
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+        <Route path="/account-deletion" element={<AccountDeletionPage />} />
+        <Route path="/delete-account" element={<AccountDeletionPage />} />
+      </Route>
 
       {/* Public Auth Routes */}
       <Route

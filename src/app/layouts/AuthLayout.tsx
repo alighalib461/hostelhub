@@ -54,19 +54,31 @@ export const AuthLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Trust Badge */}
-        <div className="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+        {/* Bottom Trust Badge & Links */}
+        <div className="relative z-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-emerald-400" />
             <span>Verified Secure Supabase Backend</span>
           </div>
-          <span>© {new Date().getFullYear()} HostelHUB</span>
+          <div className="flex items-center gap-3 text-[11px]">
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link to="/terms-and-conditions" className="hover:text-white transition-colors">
+              Terms & Conditions
+            </Link>
+            <span>•</span>
+            <Link to="/account-deletion" className="hover:text-white transition-colors">
+              Account Deletion
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Right Form Container */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12">
-        <div className="w-full max-w-md space-y-6">
+      <div className="w-full lg:w-1/2 flex flex-col justify-between items-center p-6 sm:p-12 min-h-screen">
+        <div className="w-full max-w-md space-y-6 my-auto">
           {/* Mobile Logo View */}
           <div className="lg:hidden text-center mb-6">
             <Link to="/" className="inline-block">
@@ -76,6 +88,21 @@ export const AuthLayout: React.FC = () => {
 
           {/* Form Content */}
           <Outlet />
+        </div>
+
+        {/* Mobile-Visible Public Policy Footer Links */}
+        <div className="w-full max-w-md pt-6 pb-2 text-center text-[11px] text-slate-400 flex flex-wrap items-center justify-center gap-3">
+          <Link to="/privacy-policy" className="hover:text-slate-600 transition-colors">
+            Privacy Policy
+          </Link>
+          <span>•</span>
+          <Link to="/terms-and-conditions" className="hover:text-slate-600 transition-colors">
+            Terms & Conditions
+          </Link>
+          <span>•</span>
+          <Link to="/account-deletion" className="hover:text-slate-600 transition-colors">
+            Account Deletion
+          </Link>
         </div>
       </div>
     </div>

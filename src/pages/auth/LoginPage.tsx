@@ -166,7 +166,7 @@ export const LoginPage: React.FC = () => {
         </div>
         <div className="text-[11px] text-slate-400">
           Need to remove your data?{' '}
-          <Link to="/delete-account" className="text-slate-500 hover:text-slate-700 underline">
+          <Link to="/account-deletion" className="text-slate-500 hover:text-slate-700 underline">
             Request Account Deletion
           </Link>
         </div>

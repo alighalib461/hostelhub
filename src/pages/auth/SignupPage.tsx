@@ -173,11 +173,22 @@ export const SignupPage: React.FC = () => {
           />
         </div>
 
+        <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+          By creating an account, you agree to our{' '}
+          <Link to="/terms-and-conditions" className="text-[#2563EB] hover:underline font-semibold">
+            Terms & Conditions
+          </Link>{' '}
+          and acknowledge our{' '}
+          <Link to="/privacy-policy" className="text-[#2563EB] hover:underline font-semibold">
+            Privacy Policy
+          </Link>.
+        </p>
+
         <Button
           type="submit"
           variant="primary"
           size="md"
-          className="w-full mt-3"
+          className="w-full mt-2"
           isLoading={isLoading}
         >
           Create Account
