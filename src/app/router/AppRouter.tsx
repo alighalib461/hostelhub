@@ -28,6 +28,7 @@ import { RoomsBedsPage } from '../../pages/owner/RoomsBedsPage'
 import { FeesPage } from '../../pages/owner/FeesPage'
 import { PaymentsPage } from '../../pages/owner/PaymentsPage'
 import { ReportsPage } from '../../pages/owner/ReportsPage'
+import { ComplaintsPage } from '../../pages/owner/ComplaintsPage'
 import { SettingsPage } from '../../pages/owner/SettingsPage'
 
 // Resident Pages
@@ -37,6 +38,7 @@ import { ResidentHostelPage } from '../../pages/resident/ResidentHostelPage'
 import { ResidentFeesPage } from '../../pages/resident/ResidentFeesPage'
 import { ResidentReceiptsPage } from '../../pages/resident/ResidentReceiptsPage'
 import { ResidentDocumentsPage } from '../../pages/resident/ResidentDocumentsPage'
+import { ResidentComplaintsPage } from '../../pages/resident/ResidentComplaintsPage'
 
 // Skeleton for loading
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -174,6 +176,7 @@ export const AppRouter: React.FC = () => {
         <Route path="rooms" element={<RoomsBedsPage />} />
         <Route path="fees" element={<FeesPage />} />
         <Route path="payments" element={<PaymentsPage />} />
+        <Route path="complaints" element={<ComplaintsPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>
@@ -193,6 +196,7 @@ export const AppRouter: React.FC = () => {
         <Route path="hostel" element={<ResidentHostelPage />} />
         <Route path="fees" element={<ResidentFeesPage />} />
         <Route path="receipts" element={<ResidentReceiptsPage />} />
+        <Route path="complaints" element={<ResidentComplaintsPage />} />
         <Route path="documents" element={<ResidentDocumentsPage />} />
       </Route>
 

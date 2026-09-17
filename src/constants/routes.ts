@@ -21,8 +21,8 @@ export const ROUTES = {
     ROOMS: '/app/rooms',
     FEES: '/app/fees',
     PAYMENTS: '/app/payments',
-    PAYMENT_DETAIL: '/app/payments/:id',
     REPORTS: '/app/reports',
+    COMPLAINTS: '/app/complaints',
     SETTINGS: '/app/settings',
   },
 
@@ -34,5 +34,6 @@ export const ROUTES = {
     FEES: '/resident/fees',
     RECEIPTS: '/resident/receipts',
     DOCUMENTS: '/resident/documents',
+    COMPLAINTS: '/resident/complaints',
   },
 } as const

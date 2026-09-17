@@ -11,6 +11,40 @@ export type RegistrationRequest = Database['public']['Tables']['registration_req
 export type RegistrationDocument = Database['public']['Tables']['registration_documents']['Row']
 export type FeeCharge = Database['public']['Tables']['fee_charges']['Row']
 export type Payment = Database['public']['Tables']['payments']['Row']
+export type Complaint = Database['public']['Tables']['complaints']['Row']
+
+export type ComplaintCategory =
+  | 'Electrical'
+  | 'Plumbing'
+  | 'Room / Furniture'
+  | 'Cleaning'
+  | 'Internet / Wi-Fi'
+  | 'Mess / Food'
+  | 'Security'
+  | 'Other'
+
+export type ComplaintPriority = 'normal' | 'urgent'
+export type ComplaintStatus = 'submitted' | 'in_progress' | 'resolved'
+
+export interface ComplaintWithDetails extends Complaint {
+  resident?: Resident
+  hostel?: Hostel
+  room?: Room | null
+  bed?: Bed | null
+  resolver?: Profile | null
+}
+
+export interface CreateComplaintPayload {
+  resident_id: string
+  hostel_id: string
+  room_id?: string | null
+  bed_id?: string | null
+  category: ComplaintCategory
+  subject: string
+  description: string
+  priority?: ComplaintPriority
+  photo_path?: string | null
+}
 
 // Extended Domain Models for UI
 export interface HostelWithStats extends Hostel {

@@ -258,7 +258,7 @@ export const FeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Fee Table */}
+      {/* Fee Table & Mobile Cards */}
       {isLoading ? (
         <div className="space-y-3">
           <Skeleton className="h-16 w-full" />
@@ -275,91 +275,156 @@ export const FeesPage: React.FC = () => {
           onAction={() => setIsGenerateModalOpen(true)}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-text-secondary uppercase tracking-wider font-semibold">
-              <tr>
-                <th className="py-3.5 px-4">Resident</th>
-                <th className="py-3.5 px-4">Room / Bed</th>
-                <th className="py-3.5 px-4">Due Date</th>
-                <th className="py-3.5 px-4">Amount Due</th>
-                <th className="py-3.5 px-4">Paid</th>
-                <th className="py-3.5 px-4">Remaining</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {feeCharges.map((charge) => (
-                <tr key={charge.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center text-xs shrink-0">
-                        {charge.resident?.full_name?.charAt(0) || 'R'}
-                      </div>
-                      <div>
-                        <p className="font-bold text-text-primary text-sm">
-                          {charge.resident?.full_name || 'Resident'}
-                        </p>
-                        <p className="font-mono text-[11px] text-text-secondary">
-                          {charge.resident?.resident_id} • {charge.hostel?.name}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <p className="font-medium text-text-primary">
-                      {charge.resident?.current_assignment?.room?.room_number
-                        ? `Room ${charge.resident.current_assignment.room.room_number}`
-                        : '—'}
-                    </p>
-                    <p className="text-[11px] text-text-secondary">
-                      {charge.resident?.current_assignment?.bed?.bed_number
-                        ? `Bed ${charge.resident.current_assignment.bed.bed_number}`
-                        : ''}
-                    </p>
-                  </td>
-
-                  <td className="py-3.5 px-4 text-text-secondary">{formatDate(charge.due_date)}</td>
-
-                  <td className="py-3.5 px-4 font-bold text-text-primary">
-                    {formatCurrency(charge.amount_due)}
-                  </td>
-
-                  <td className="py-3.5 px-4 font-semibold text-emerald-600">
-                    {formatCurrency(charge.amount_paid)}
-                  </td>
-
-                  <td className="py-3.5 px-4 font-bold text-rose-600">
-                    {formatCurrency(charge.remaining_amount)}
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <StatusBadge status={charge.status} />
-                  </td>
-
-                  <td className="py-3.5 px-4 text-right">
-                    {charge.remaining_amount > 0 ? (
-                      <Button
-                        variant="teal"
-                        size="sm"
-                        onClick={() => handleOpenRecordPayment(charge)}
-                        className="text-xs h-8 px-3"
-                      >
-                        Record Pay
-                      </Button>
-                    ) : (
-                      <span className="text-xs font-semibold text-emerald-600 inline-flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Fully Paid
-                      </span>
-                    )}
-                  </td>
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-text-secondary uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="py-3.5 px-4">Resident</th>
+                  <th className="py-3.5 px-4">Room / Bed</th>
+                  <th className="py-3.5 px-4">Due Date</th>
+                  <th className="py-3.5 px-4">Amount Due</th>
+                  <th className="py-3.5 px-4">Paid</th>
+                  <th className="py-3.5 px-4">Remaining</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {feeCharges.map((charge) => (
+                  <tr key={charge.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-800 font-bold flex items-center justify-center text-xs shrink-0">
+                          {charge.resident?.full_name?.charAt(0) || 'R'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-text-primary text-sm">
+                            {charge.resident?.full_name || 'Resident'}
+                          </p>
+                          <p className="font-mono text-[11px] text-text-secondary">
+                            {charge.resident?.resident_id} • {charge.hostel?.name}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-4">
+                      <p className="font-medium text-text-primary">
+                        {charge.resident?.current_assignment?.room?.room_number
+                          ? `Room ${charge.resident.current_assignment.room.room_number}`
+                          : '—'}
+                      </p>
+                      <p className="text-[11px] text-text-secondary">
+                        {charge.resident?.current_assignment?.bed?.bed_number
+                          ? `Bed ${charge.resident.current_assignment.bed.bed_number}`
+                          : ''}
+                      </p>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-text-secondary">{formatDate(charge.due_date)}</td>
+
+                    <td className="py-3.5 px-4 font-bold text-text-primary">
+                      {formatCurrency(charge.amount_due)}
+                    </td>
+
+                    <td className="py-3.5 px-4 font-semibold text-emerald-600">
+                      {formatCurrency(charge.amount_paid)}
+                    </td>
+
+                    <td className="py-3.5 px-4 font-bold text-rose-600">
+                      {formatCurrency(charge.remaining_amount)}
+                    </td>
+
+                    <td className="py-3.5 px-4">
+                      <StatusBadge status={charge.status} />
+                    </td>
+
+                    <td className="py-3.5 px-4 text-right">
+                      {charge.remaining_amount > 0 ? (
+                        <Button
+                          variant="teal"
+                          size="sm"
+                          onClick={() => handleOpenRecordPayment(charge)}
+                          className="text-xs h-8 px-3"
+                        >
+                          Record Pay
+                        </Button>
+                      ) : (
+                        <span className="text-xs font-semibold text-emerald-600 inline-flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Fully Paid
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Fee Cards View (Zero horizontal scroll) */}
+          <div className="md:hidden space-y-3">
+            {feeCharges.map((charge) => (
+              <div
+                key={charge.id}
+                className="bg-white rounded-2xl border border-slate-200/80 shadow-card p-4 space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-[#2563EB] font-bold text-xs flex items-center justify-center shrink-0">
+                      {charge.resident?.full_name?.charAt(0) || 'R'}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-bold text-[#172033] truncate">
+                        {charge.resident?.full_name || 'Resident'}
+                      </h4>
+                      <p className="text-[10px] text-slate-500 font-mono">
+                        {charge.resident?.resident_id} • Room {charge.resident?.current_assignment?.room?.room_number || '—'}
+                      </p>
+                    </div>
+                  </div>
+                  <StatusBadge status={charge.status} />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50 rounded-xl text-center text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-400 font-medium">Due</span>
+                    <p className="font-bold text-[#172033] mt-0.5 truncate">{formatCurrency(charge.amount_due)}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-emerald-700 font-medium">Paid</span>
+                    <p className="font-bold text-emerald-600 mt-0.5 truncate">{formatCurrency(charge.amount_paid)}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-rose-700 font-medium">Remaining</span>
+                    <p className="font-bold text-rose-600 mt-0.5 truncate">{formatCurrency(charge.remaining_amount)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-slate-400">
+                    Due Date: {formatDate(charge.due_date)}
+                  </span>
+                  {charge.remaining_amount > 0 ? (
+                    <Button
+                      variant="teal"
+                      size="sm"
+                      onClick={() => handleOpenRecordPayment(charge)}
+                      className="text-xs font-bold px-3 py-1.5 h-8 shadow-xs"
+                    >
+                      Record Payment
+                    </Button>
+                  ) : (
+                    <span className="text-xs font-bold text-emerald-600 inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-4 h-4" /> Paid in Full
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Generate Monthly Fees Modal */}

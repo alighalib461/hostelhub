@@ -233,7 +233,7 @@ export const PaymentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Ledger Table */}
+      {/* Ledger Table & Mobile Cards */}
       {isLoading ? (
         <div className="space-y-3">
           <Skeleton className="h-16 w-full" />
@@ -250,92 +250,168 @@ export const PaymentsPage: React.FC = () => {
           onAction={handleOpenRecordPayment}
         />
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-text-secondary uppercase tracking-wider font-semibold">
-              <tr>
-                <th className="py-3.5 px-4">Receipt #</th>
-                <th className="py-3.5 px-4">Resident</th>
-                <th className="py-3.5 px-4">Billing Month</th>
-                <th className="py-3.5 px-4">Payment Date</th>
-                <th className="py-3.5 px-4">Mode</th>
-                <th className="py-3.5 px-4">Amount</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {payments.map((p) => {
-                const isVoided = p.status === 'voided'
-                return (
-                  <tr
-                    key={p.id}
-                    className={`hover:bg-slate-50/80 transition-colors ${
-                      isVoided ? 'bg-rose-50/20 opacity-80' : ''
-                    }`}
-                  >
-                    <td className="py-3.5 px-4 font-mono font-bold text-blue-brand">
-                      {p.receipt_number}
-                    </td>
-
-                    <td className="py-3.5 px-4">
-                      <p className="font-bold text-text-primary text-sm">
-                        {p.resident?.full_name || 'Resident'}
-                      </p>
-                      <p className="font-mono text-[11px] text-text-secondary">
-                        {p.resident?.resident_id} • {p.hostel?.name}
-                      </p>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-medium text-text-primary">
-                      {formatFeeMonth(p.fee_charge?.fee_month)}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-text-secondary">{formatDate(p.payment_date)}</td>
-
-                    <td className="py-3.5 px-4 capitalize">{p.payment_method?.replace('_', ' ')}</td>
-
-                    <td
-                      className={`py-3.5 px-4 font-bold text-sm ${
-                        isVoided ? 'text-slate-400 line-through' : 'text-emerald-700'
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden md:block bg-white rounded-2xl border border-slate-200/80 shadow-card overflow-hidden">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 border-b border-slate-200 text-text-secondary uppercase tracking-wider font-semibold">
+                <tr>
+                  <th className="py-3.5 px-4">Receipt #</th>
+                  <th className="py-3.5 px-4">Resident</th>
+                  <th className="py-3.5 px-4">Billing Month</th>
+                  <th className="py-3.5 px-4">Payment Date</th>
+                  <th className="py-3.5 px-4">Mode</th>
+                  <th className="py-3.5 px-4">Amount</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {payments.map((p) => {
+                  const isVoided = p.status === 'voided'
+                  return (
+                    <tr
+                      key={p.id}
+                      className={`hover:bg-slate-50/80 transition-colors ${
+                        isVoided ? 'bg-rose-50/20 opacity-80' : ''
                       }`}
                     >
-                      {formatCurrency(p.amount)}
-                    </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-blue-brand">
+                        {p.receipt_number}
+                      </td>
 
-                    <td className="py-3.5 px-4">
-                      <StatusBadge status={p.status} />
-                    </td>
+                      <td className="py-3.5 px-4">
+                        <p className="font-bold text-text-primary text-sm">
+                          {p.resident?.full_name || 'Resident'}
+                        </p>
+                        <p className="font-mono text-[11px] text-text-secondary">
+                          {p.resident?.resident_id} • {p.hostel?.name}
+                        </p>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewReceipt(p.id)}
-                        leftIcon={<Eye className="w-3.5 h-3.5" />}
-                        className="text-xs h-8 px-2.5"
+                      <td className="py-3.5 px-4 font-medium text-text-primary">
+                        {formatFeeMonth(p.fee_charge?.fee_month)}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-text-secondary">{formatDate(p.payment_date)}</td>
+
+                      <td className="py-3.5 px-4 capitalize">{p.payment_method?.replace('_', ' ')}</td>
+
+                      <td
+                        className={`py-3.5 px-4 font-bold text-sm ${
+                          isVoided ? 'text-slate-400 line-through' : 'text-emerald-700'
+                        }`}
                       >
-                        Receipt
-                      </Button>
+                        {formatCurrency(p.amount)}
+                      </td>
 
-                      {!isVoided && (
+                      <td className="py-3.5 px-4">
+                        <StatusBadge status={p.status} />
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          onClick={() => handleOpenVoidModal(p)}
-                          className="text-xs h-8 px-2 text-rose-600 hover:bg-rose-50"
-                          title="Void payment and restore balance"
+                          onClick={() => handleViewReceipt(p.id)}
+                          leftIcon={<Eye className="w-3.5 h-3.5" />}
+                          className="text-xs h-8 px-2.5"
                         >
-                          <Ban className="w-3.5 h-3.5" />
+                          Receipt
                         </Button>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+
+                        {!isVoided && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleOpenVoidModal(p)}
+                            className="text-xs h-8 px-2 text-rose-600 hover:bg-rose-50"
+                            title="Void payment and restore balance"
+                          >
+                            <Ban className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Payment Cards View (Zero horizontal scrolling) */}
+          <div className="md:hidden space-y-3">
+            {payments.map((p) => {
+              const isVoided = p.status === 'voided'
+              return (
+                <div
+                  key={p.id}
+                  className={`bg-white rounded-2xl border border-slate-200/80 shadow-card p-4 space-y-3 ${
+                    isVoided ? 'bg-rose-50/20 opacity-80' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-[#2563EB]">
+                          {p.receipt_number}
+                        </span>
+                        <StatusBadge status={p.status} />
+                      </div>
+                      <h4 className="text-sm font-bold text-[#172033] mt-1">
+                        {p.resident?.full_name || 'Resident'}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {p.resident?.resident_id} • {p.hostel?.name}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <span
+                        className={`text-base font-bold ${
+                          isVoided ? 'text-slate-400 line-through' : 'text-emerald-700'
+                        }`}
+                      >
+                        {formatCurrency(p.amount)}
+                      </span>
+                      <p className="text-[10px] text-slate-500 capitalize">
+                        {p.payment_method?.replace('_', ' ')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                    <span>Month: {formatFeeMonth(p.fee_charge?.fee_month)}</span>
+                    <span>Paid on: {formatDate(p.payment_date)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                    {!isVoided && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleOpenVoidModal(p)}
+                        className="text-xs h-8 px-3 text-rose-600 hover:bg-rose-50 font-semibold"
+                        leftIcon={<Ban className="w-3.5 h-3.5" />}
+                      >
+                        Void
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewReceipt(p.id)}
+                      leftIcon={<Eye className="w-3.5 h-3.5" />}
+                      className="text-xs h-8 px-3 font-semibold border-slate-300"
+                    >
+                      View Receipt
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </>
       )}
 
       {/* Record Payment Modal */}

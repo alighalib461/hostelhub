@@ -78,4 +78,34 @@ export const STATUS_CONFIG = {
     badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80 line-through',
     dotClass: 'bg-rose-500',
   },
+
+  // Complaint statuses
+  submitted: {
+    label: 'Submitted',
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200/80',
+    dotClass: 'bg-blue-500',
+  },
+  in_progress: {
+    label: 'In Progress',
+    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200/80',
+    dotClass: 'bg-amber-500',
+  },
+  resolved: {
+    label: 'Resolved',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+    dotClass: 'bg-emerald-500',
+  },
+
+  // Priority configs
+  urgent: {
+    label: 'Urgent',
+    badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
+    dotClass: 'bg-rose-500',
+  },
+  normal: {
+    label: 'Normal',
+    badgeClass: 'bg-slate-100 text-slate-700 border-slate-200/80',
+    dotClass: 'bg-slate-400',
+  },
 } as const
+

@@ -474,6 +474,65 @@ export interface Database {
           processed_at?: string | null
         }
       }
+      complaints: {
+        Row: {
+          id: string
+          complaint_code: string
+          resident_id: string
+          hostel_id: string
+          room_id: string | null
+          bed_id: string | null
+          category: 'Electrical' | 'Plumbing' | 'Room / Furniture' | 'Cleaning' | 'Internet / Wi-Fi' | 'Mess / Food' | 'Security' | 'Other'
+          subject: string
+          description: string
+          priority: 'normal' | 'urgent'
+          status: 'submitted' | 'in_progress' | 'resolved'
+          photo_path: string | null
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          complaint_code?: string
+          resident_id: string
+          hostel_id: string
+          room_id?: string | null
+          bed_id?: string | null
+          category: 'Electrical' | 'Plumbing' | 'Room / Furniture' | 'Cleaning' | 'Internet / Wi-Fi' | 'Mess / Food' | 'Security' | 'Other'
+          subject: string
+          description: string
+          priority?: 'normal' | 'urgent'
+          status?: 'submitted' | 'in_progress' | 'resolved'
+          photo_path?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          complaint_code?: string
+          resident_id?: string
+          hostel_id?: string
+          room_id?: string | null
+          bed_id?: string | null
+          category?: 'Electrical' | 'Plumbing' | 'Room / Furniture' | 'Cleaning' | 'Internet / Wi-Fi' | 'Mess / Food' | 'Security' | 'Other'
+          subject?: string
+          description?: string
+          priority?: 'normal' | 'urgent'
+          status?: 'submitted' | 'in_progress' | 'resolved'
+          photo_path?: string | null
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Functions: {
       delete_user_account: {
