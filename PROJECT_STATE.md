@@ -1,100 +1,110 @@
-# HostelHUB — Project Development State & Snapshot
+# HostelHUB — Project Development State & Release Snapshot
 
-**Saved at:** September 06, 2026 (Local time 01:53 AM)
+**Saved at:** September 17, 2026 (Local time 01:18 AM)
 **Project Root:** `C:\Users\Laptech IT\.gemini\antigravity-ide\scratch\hostelhub`
+**Git Repository:** `https://github.com/alighalib461/hostelhub.git`
+**Branch:** `main` (Synced & Pushed)
+**Latest Commit:** `cc5d805` — *feat: add complaint & maintenance system and mobile-first responsive redesign*
 
 ---
 
-## 1. Backend & Supabase Status
-- **Project Ref:** `ebayqkzubjpjtejskuly` (alighalib461's Project, PostgreSQL 17, `ap-south-1`)
-- **Status:** `ACTIVE_HEALTHY`
-- **11 Tables Verified & RLS Enabled:**
-  - `profiles`, `hostels`, `rooms`, `beds`, `residents`, `resident_assignments`, `resident_documents`, `registration_requests`, `registration_documents`, `fee_charges`, `payments`
-- **RPC Functions Active:**
-  - `record_payment()`, `assign_bed()`, `approve_registration()`, `void_payment()`, `generate_monthly_fees()`, `calculate_fee_due_date()`, `generate_resident_id()`, `generate_receipt_number()`
-- **Storage Buckets Active (Private):**
-  - `resident-documents`, `resident-photos`, `hostel-assets`, `receipts`
+## 1. Release Readiness Summary
+- **Vite/TypeScript Build:** ✅ `tsc -b && vite build` (Passes with 0 errors)
+- **Capacitor Android Sync:** ✅ `npx cap sync` executed (Web assets synced to `android/app/src/main/assets/public`)
+- **Git Status:** ✅ Working tree clean; all code committed and pushed to GitHub `origin/main`
+- **Capacitor Plugins Active:** `@capacitor/camera@8.2.4`, `@capacitor/android@8.5.1`, `@capacitor/core@8.5.1`
 
 ---
 
-## 2. Frontend Foundation & Dependencies (Installed)
-- **Framework:** React 19 + TypeScript + Vite + Tailwind CSS
-- **Installed Packages:**
-  - `@supabase/supabase-js`
-  - `react-router-dom`
-  - `@tanstack/react-query`
-  - `lucide-react`
-  - `clsx`, `tailwind-merge`
-  - `zod`, `react-hook-form`, `@hookform/resolvers`
-  - `html2canvas`, `jspdf`
-  - `canvas-confetti`, `@types/canvas-confetti`
-  - `tailwindcss`, `postcss`, `autoprefixer`
+## 2. Complete Features Implemented
+
+### 🏢 Owner / Admin Management Portal
+1. **Executive 5–10 Second Mobile Dashboard (`/app/dashboard`)**:
+   - Dynamic time-of-day greeting (`Good Morning / Afternoon / Evening`) with active hostel and month badge.
+   - Top side-by-side quick action buttons: `+ Add Resident` (Blue) and `Record Payment` (Teal).
+   - 2 × 2 KPI Metric Grid on mobile with mini progress bars:
+     - Active Residents
+     - Bed Occupancy Rate (%) with occupied/total bed counter
+     - Monthly Fee Collection (PKR) with recovery progress bar
+     - Outstanding / Overdue balance
+   - Operations Attention Hub: live indicators for pending admission requests, unresolved complaints, and overdue balances.
+   - Recent Payments list with 1-tap `Receipt` viewer.
+   - Occupancy distribution & monthly billing summary.
+2. **Fixed Bottom Navigation Bar & "More" Drawer (`OwnerLayout.tsx`)**:
+   - 5 primary touch tabs: Home, Residents, Rooms, Payments, More.
+   - "More" drawer with quick access to Fees & Billing, Complaints, Registration Requests, Reports & Analytics, Hostels, Settings, and Sign Out.
+3. **Resident Management (`/app/residents`)**:
+   - 5-step resident admission wizard with bed assignment, CNIC camera capture, and photo upload.
+   - Mobile card view with 44px touch targets, quick phone dial, and profile navigation.
+4. **Rooms & Beds Management (`/app/rooms`)**:
+   - Visual bed matrix (`● Occupied` / `○ Free`) with 1-tap resident assignment modal.
+5. **Fee Ledger & Billing (`/app/fees`)**:
+   - Batch monthly fee generation.
+   - Mobile card view with Due / Paid / Remaining amounts and quick payment recording.
+6. **Payments & Digital Receipts (`/app/payments`)**:
+   - Immutable transaction ledger, void payment modal, and printable/downloadable official digital receipts.
+7. **Complaints & Maintenance System (`/app/complaints`)**:
+   - Filter complaints by category, priority, and status (`submitted`, `in_progress`, `resolved`).
+   - "Mark In Progress" and "Mark Resolved" with custom owner resolution notes.
+8. **Public Online Registration Review (`/app/registration-requests`)**:
+   - One-tap approval with automatic resident creation and bed assignment.
+9. **Reports & Analytics (`/app/reports`)**:
+   - Financial collection, bed occupancy, and fee aging reports with CSV/PDF exports.
 
 ---
 
-## 3. Files Created & Persisted
-
-### Config & Styling
-- [.env](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/.env) (Supabase URL & Anon Key)
-- [index.html](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/index.html) (Google Fonts Poppins, SEO title, favicon)
-- [public/favicon.svg](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/public/favicon.svg) (Exact brand vector icon)
-- [tailwind.config.js](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/tailwind.config.js) (HostelHUB color tokens: Deep Navy `#0D1B2A`, Blue `#2563EB`, Teal `#16A085`, Status colors, Poppins typography)
-- [postcss.config.js](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/postcss.config.js)
-- [src/index.css](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/index.css) (Global styling, custom scrollbars, print receipt rules)
-
-### Types & Models
-- [src/types/database.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/types/database.ts) (Complete Supabase database schema types)
-- [src/types/models.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/types/models.ts) (Extended domain view models)
-
-### Service Layer
-- [src/services/supabase/client.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/supabase/client.ts) (Supabase client)
-- [src/services/supabase/authService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/supabase/authService.ts) (Auth & profile management)
-- [src/services/hostels/hostelsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/hostels/hostelsService.ts) (Multi-hostel CRUD & metrics)
-- [src/services/rooms/roomsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/rooms/roomsService.ts) (Rooms & bed matrix, atomic bed assignment)
-- [src/services/residents/residentsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/residents/residentsService.ts) (Resident lifecycle, search, 5-step create)
-- [src/services/fees/feesService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/fees/feesService.ts) (Fee ledger, status calculation, batch fee generation)
-- [src/services/payments/paymentsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/payments/paymentsService.ts) (Payment recording, voiding, receipt data)
-- [src/services/registrations/registrationsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/registrations/registrationsService.ts) (Public registration submission & owner review)
-- [src/services/reports/reportsService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/reports/reportsService.ts) (Collection, Occupancy, Aging reports)
-- [src/services/storage/storageService.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/services/storage/storageService.ts) (Private uploads & signed URLs)
-
-### Context Providers & State
-- [src/app/providers/AuthProvider.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/app/providers/AuthProvider.tsx) (Session & profile role context)
-- [src/app/providers/HostelProvider.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/app/providers/HostelProvider.tsx) (Global multi-hostel selector)
-- [src/app/providers/QueryProvider.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/app/providers/QueryProvider.tsx) (React Query client)
-
-### Base UI & Shared Components
-- [src/components/ui/Button.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Button.tsx)
-- [src/components/ui/Input.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Input.tsx)
-- [src/components/ui/Select.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Select.tsx)
-- [src/components/ui/Card.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Card.tsx)
-- [src/components/ui/Badge.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Badge.tsx)
-- [src/components/ui/Modal.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Modal.tsx)
-- [src/components/ui/Tabs.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Tabs.tsx)
-- [src/components/ui/Skeleton.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/ui/Skeleton.tsx)
-- [src/components/shared/BrandLogo.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/BrandLogo.tsx) (5 variants: full, icon, dark, light, monochrome)
-- [src/components/shared/StatusBadge.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/StatusBadge.tsx)
-- [src/components/shared/StatCard.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/StatCard.tsx)
-- [src/components/shared/EmptyState.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/EmptyState.tsx)
-- [src/components/shared/SearchBar.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/SearchBar.tsx)
-- [src/components/shared/ConfirmDialog.tsx](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/components/shared/ConfirmDialog.tsx)
-
-### Constants & Utilities
-- [src/constants/brand.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/constants/brand.ts)
-- [src/constants/routes.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/constants/routes.ts)
-- [src/constants/status.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/constants/status.ts)
-- [src/utils/cn.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/utils/cn.ts)
-- [src/utils/formatters.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/utils/formatters.ts) (PKR Currency, Dates, CNIC mask, Phone)
-- [src/utils/errorHandling.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/utils/errorHandling.ts) (Human-readable error parser)
-- [src/utils/receiptGenerator.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/utils/receiptGenerator.ts)
-- [src/utils/exportUtils.ts](file:///C:/Users/Laptech%20IT/.gemini/antigravity-ide/scratch/hostelhub/src/utils/exportUtils.ts)
+### 👤 Resident Portal
+1. **Resident Dashboard (`/resident/dashboard`)**:
+   - Live room & bed assignment overview, current month fee payment status, and quick complaint submission.
+2. **Resident Complaints Portal (`/resident/complaints`)**:
+   - Auto-captures hostel, room, and bed.
+   - Category selection (Plumbing, Electrical, Cleanliness, Furniture, Internet/WiFi, Security, Noise/Discipline, Other).
+   - Priority selector, photo attachment, live resolution note viewer, and status timeline.
+3. **Fees & Receipts (`/resident/fees`, `/resident/receipts`)**:
+   - View fee charges, payment history, and download official receipts.
+4. **Mobile Navigation (`ResidentLayout.tsx`)**:
+   - 5-tab mobile bottom bar with slide-up menu for documents and hostel details.
 
 ---
 
-## 4. Next Step When Resuming
-When you return in 20 minutes, we will immediately proceed with:
-1. Building the **Layouts** (`AuthLayout.tsx`, `OwnerLayout.tsx`, `ResidentLayout.tsx`) and **AppRouter** (`AppRouter.tsx` with role guards).
-2. Building the **Owner Pages** (Dashboard with 5-second metrics, Residents List & Detail, 5-Step Add Resident Wizard, Rooms & Beds visual matrix, Fee Ledger, Payment Recording with downloadable receipts, Registration Requests queue, Reports with exports, Settings).
-3. Building the **Resident Portal Pages** (Mobile-first Dashboard, My Hostel & Room/Bed, My Fees, My Receipts, My Documents with signed URLs).
-4. Building the **Public Registration Portal** (`/register/:hostelId`).
-5. Running and previewing the live application in the browser!
+### 🔒 Security, Multi-Tenancy & Compliance
+- Multi-user data isolation via Supabase PostgreSQL Row Level Security (RLS) policies.
+- Public Privacy Policy (`/privacy`), Terms & Conditions (`/terms`), and Account Deletion Portal (`/account-deletion`).
+
+---
+
+## 3. How to Build the `.aab` (Android App Bundle) File for Release
+
+When you are ready to build the release `.aab` in 4 hours, follow these steps:
+
+### Step 1: Open the Android Project in Android Studio
+```bash
+npx cap open android
+```
+*(Or open Android Studio and choose `File > Open > C:\Users\Laptech IT\.gemini\antigravity-ide\scratch\hostelhub\android`)*
+
+### Step 2: Ensure Version Code & Version Name are Updated
+In `android/app/build.gradle`:
+```groovy
+defaultConfig {
+    applicationId "com.hostelhub.app"
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+    versionCode 2          // Increment for new release
+    versionName "1.0.1"    // Release version
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+}
+```
+
+### Step 3: Generate Signed App Bundle (.aab)
+1. In Android Studio, go to the top menu: **Build** > **Generate Signed Bundle / APK...**
+2. Select **Android App Bundle (.aab)** and click **Next**.
+3. Choose your release KeyStore path, enter your KeyStore password, Key alias, and Key password.
+4. Select the **release** build variant.
+5. Click **Finish**.
+
+### Step 4: Locate the `.aab` File
+Your production bundle will be generated at:
+`android/app/release/app-release.aab`
+
+You can upload this `.aab` file directly to the **Google Play Console** for release!
