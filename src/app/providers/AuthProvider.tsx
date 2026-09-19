@@ -1,17 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { Profile } from '../../types/models'
+import { Profile, UserRole } from '../../types/models'
 import { authService } from '../../services/supabase/authService'
 import { supabase } from '../../services/supabase/client'
 
 interface AuthContextType {
   user: User | null
   profile: Profile | null
-  role: 'owner' | 'resident' | null
+  role: UserRole | null
   isLoading: boolean
   isAuthenticated: boolean
   signIn: (email: string, password: string) => Promise<{ user: User | null; profile: Profile | null }>
-  signUp: (email: string, password: string, fullName: string, role: 'owner' | 'resident', phone?: string) => Promise<{ user: User | null; profile: Profile | null }>
+  signUp: (email: string, password: string, fullName: string, role: UserRole, phone?: string) => Promise<{ user: User | null; profile: Profile | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
 }
@@ -36,11 +36,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let userProfile = await authService.getCurrentProfile(currentUser.id)
       if (!userProfile) {
         const meta = currentUser.user_metadata || {}
-        const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
+        const fallbackRole = (meta.role as UserRole) || 'resident'
         userProfile = {
           id: currentUser.id,
           email: currentUser.email || '',
-          full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
+          full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : fallbackRole === 'warden' ? 'Hostel Warden' : 'Resident User'),
           phone: meta.phone || null,
           role: fallbackRole,
           avatar_path: null,
@@ -53,11 +53,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Failed to load user profile:', err)
       const meta = currentUser.user_metadata || {}
-      const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
+      const fallbackRole = (meta.role as UserRole) || 'resident'
       const fallbackProfile: Profile = {
         id: currentUser.id,
         email: currentUser.email || '',
-        full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
+        full_name: meta.full_name || (fallbackRole === 'owner' ? 'Hostel Owner' : fallbackRole === 'warden' ? 'Hostel Warden' : 'Resident User'),
         phone: meta.phone || null,
         role: fallbackRole,
         avatar_path: null,
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'owner' | 'resident', phone?: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: UserRole, phone?: string) => {
     setIsLoading(true)
     try {
       const data = await authService.signUp(email, password, fullName, role, phone)
@@ -138,7 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         profile,
-        role: profile?.role || (user?.user_metadata?.role as 'owner' | 'resident') || null,
+        role: profile?.role || (user?.user_metadata?.role as UserRole) || null,
         isLoading,
         isAuthenticated: !!user,
         signIn,

@@ -72,7 +72,7 @@ export const paymentsService = {
   async recordPayment(payload: {
     fee_charge_id: string
     amount: number
-    payment_method: 'cash' | 'bank_transfer' | 'other'
+    payment_method: 'cash' | 'bank_transfer' | 'easypaisa' | 'jazzcash' | 'other'
     payment_date?: string
     notes?: string
   }) {

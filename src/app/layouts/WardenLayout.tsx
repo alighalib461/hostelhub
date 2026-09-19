@@ -14,70 +14,59 @@ import {
   UserPlus,
   Settings,
   LogOut,
+  X,
   ChevronDown,
   Building,
   PlusCircle,
   Wrench,
   MoreHorizontal,
-  X,
-  ShieldCheck,
   UtensilsCrossed,
   Bell,
+  Receipt,
   DollarSign,
-  Landmark,
-  UserCheck,
+  ShieldCheck,
 } from 'lucide-react'
 
-export const OwnerLayout: React.FC = () => {
+export const WardenLayout: React.FC = () => {
   const { profile, signOut } = useAuth()
-  const { hostels, selectedHostelId, setSelectedHostelId } = useHostelContext()
+  const { hostels, selectedHostelId, setSelectedHostelId, wardenPermissions } = useHostelContext()
   const [isMoreDrawerOpen, setIsMoreDrawerOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Full desktop sidebar navigation items
+  // Dynamic Navigation filtered by Warden's explicit permissions
   const navItems = [
-    { label: 'Dashboard', path: '/app/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { label: 'Hostels', path: '/app/hostels', icon: <Building2 className="w-4 h-4" /> },
-    { label: 'Wardens & Staff', path: '/app/wardens', icon: <UserCheck className="w-4 h-4" /> },
-    { label: 'Residents', path: '/app/residents', icon: <Users className="w-4 h-4" /> },
-    { label: 'Rooms & Beds', path: '/app/rooms', icon: <BedDouble className="w-4 h-4" /> },
-    { label: 'Fees & Billing', path: '/app/fees', icon: <CreditCard className="w-4 h-4" /> },
-    { label: 'Payments', path: '/app/payments', icon: <CreditCard className="w-4 h-4" /> },
-    { label: 'Verify Online Payments', path: '/app/payment-verifications', icon: <ShieldCheck className="w-4 h-4" /> },
-    { label: 'Payment Accounts', path: '/app/payment-accounts', icon: <Landmark className="w-4 h-4" /> },
-    { label: 'Hostel Menu', path: '/app/menu', icon: <UtensilsCrossed className="w-4 h-4" /> },
-    { label: 'Announcements', path: '/app/announcements', icon: <Bell className="w-4 h-4" /> },
-    { label: 'Expenses', path: '/app/expenses', icon: <DollarSign className="w-4 h-4" /> },
-    { label: 'Registration Requests', path: '/app/registration-requests', icon: <UserPlus className="w-4 h-4" /> },
-    { label: 'Complaints', path: '/app/complaints', icon: <Wrench className="w-4 h-4" /> },
-    { label: 'Reports & Analytics', path: '/app/reports', icon: <BarChart3 className="w-4 h-4" /> },
-    { label: 'Settings', path: '/app/settings', icon: <Settings className="w-4 h-4" /> },
-  ]
+    { label: 'Dashboard', path: '/warden/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, show: true },
+    { label: 'Residents', path: '/warden/residents', icon: <Users className="w-4 h-4" />, show: wardenPermissions.can_view_residents },
+    { label: 'Rooms & Beds', path: '/warden/rooms', icon: <BedDouble className="w-4 h-4" />, show: wardenPermissions.can_manage_rooms || wardenPermissions.can_manage_beds },
+    { label: 'Fees & Billing', path: '/warden/fees', icon: <CreditCard className="w-4 h-4" />, show: wardenPermissions.can_view_fees },
+    { label: 'Payments', path: '/warden/payments', icon: <Receipt className="w-4 h-4" />, show: wardenPermissions.can_record_payments },
+    { label: 'Verify Online Payments', path: '/warden/payment-verifications', icon: <ShieldCheck className="w-4 h-4" />, show: wardenPermissions.can_verify_online_payments },
+    { label: 'Hostel Menu', path: '/warden/menu', icon: <UtensilsCrossed className="w-4 h-4" />, show: wardenPermissions.can_manage_menu },
+    { label: 'Complaints', path: '/warden/complaints', icon: <Wrench className="w-4 h-4" />, show: wardenPermissions.can_manage_complaints },
+    { label: 'Announcements', path: '/warden/announcements', icon: <Bell className="w-4 h-4" />, show: wardenPermissions.can_create_announcements },
+    { label: 'Expenses', path: '/warden/expenses', icon: <DollarSign className="w-4 h-4" />, show: wardenPermissions.can_view_expenses },
+    { label: 'Reports', path: '/warden/reports', icon: <BarChart3 className="w-4 h-4" />, show: wardenPermissions.can_view_reports },
+  ].filter((item) => item.show)
 
-  // Primary bottom navigation items (5 tabs on mobile)
+  // Primary bottom navigation items (5 tabs)
   const bottomNavItems = [
-    { label: 'Home', path: '/app/dashboard', icon: LayoutDashboard },
-    { label: 'Residents', path: '/app/residents', icon: Users },
-    { label: 'Verify', path: '/app/payment-verifications', icon: ShieldCheck },
-    { label: 'Payments', path: '/app/payments', icon: CreditCard },
-  ]
+    { label: 'Home', path: '/warden/dashboard', icon: LayoutDashboard },
+    { label: 'Residents', path: '/warden/residents', icon: Users, show: wardenPermissions.can_view_residents },
+    { label: 'Rooms', path: '/warden/rooms', icon: BedDouble, show: wardenPermissions.can_manage_rooms },
+    { label: 'Payments', path: '/warden/payments', icon: Receipt, show: wardenPermissions.can_record_payments },
+  ].filter((item) => item.show !== false)
 
   // Secondary items shown in the "More" slide-up drawer
   const moreNavItems = [
-    { label: 'Wardens & Staff', path: '/app/wardens', icon: UserCheck, color: 'text-teal-600 bg-teal-50' },
-    { label: 'Hostels Management', path: '/app/hostels', icon: Building2, color: 'text-blue-600 bg-blue-50' },
-    { label: 'Rooms & Beds', path: '/app/rooms', icon: BedDouble, color: 'text-purple-600 bg-purple-50' },
-    { label: 'Fees & Billing', path: '/app/fees', icon: CreditCard, color: 'text-emerald-600 bg-emerald-50' },
-    { label: 'Payment Accounts', path: '/app/payment-accounts', icon: Landmark, color: 'text-indigo-600 bg-indigo-50' },
-    { label: 'Hostel Menu', path: '/app/menu', icon: UtensilsCrossed, color: 'text-amber-600 bg-amber-50' },
-    { label: 'Announcements', path: '/app/announcements', icon: Bell, color: 'text-cyan-600 bg-cyan-50' },
-    { label: 'Expenses Ledger', path: '/app/expenses', icon: DollarSign, color: 'text-rose-600 bg-rose-50' },
-    { label: 'Complaints & Support', path: '/app/complaints', icon: Wrench, color: 'text-orange-600 bg-orange-50' },
-    { label: 'Registration Requests', path: '/app/registration-requests', icon: UserPlus, color: 'text-indigo-600 bg-indigo-50' },
-    { label: 'Reports & Analytics', path: '/app/reports', icon: BarChart3, color: 'text-purple-600 bg-purple-50' },
-    { label: 'Settings & Security', path: '/app/settings', icon: Settings, color: 'text-slate-600 bg-slate-100' },
-  ]
+    { label: 'Verify Online Payments', path: '/warden/payment-verifications', icon: ShieldCheck, color: 'text-indigo-600 bg-indigo-50', show: wardenPermissions.can_verify_online_payments },
+    { label: 'Fees & Billing', path: '/warden/fees', icon: CreditCard, color: 'text-emerald-600 bg-emerald-50', show: wardenPermissions.can_view_fees },
+    { label: 'Hostel Menu', path: '/warden/menu', icon: UtensilsCrossed, color: 'text-amber-600 bg-amber-50', show: wardenPermissions.can_manage_menu },
+    { label: 'Complaints & Maintenance', path: '/warden/complaints', icon: Wrench, color: 'text-rose-600 bg-rose-50', show: wardenPermissions.can_manage_complaints },
+    { label: 'Announcements', path: '/warden/announcements', icon: Bell, color: 'text-blue-600 bg-blue-50', show: wardenPermissions.can_create_announcements },
+    { label: 'Expenses', path: '/warden/expenses', icon: DollarSign, color: 'text-emerald-600 bg-emerald-50', show: wardenPermissions.can_view_expenses },
+    { label: 'Reports', path: '/warden/reports', icon: BarChart3, color: 'text-purple-600 bg-purple-50', show: wardenPermissions.can_view_reports },
+  ].filter((item) => item.show)
 
   const handleSignOut = async () => {
     await signOut()
@@ -85,7 +74,7 @@ export const OwnerLayout: React.FC = () => {
   }
 
   const currentNavItem = navItems.find((item) => location.pathname.startsWith(item.path))
-  const pageTitle = currentNavItem ? currentNavItem.label : 'HostelHUB'
+  const pageTitle = currentNavItem ? currentNavItem.label : 'Warden Operations'
   const isMoreActive = moreNavItems.some((item) => location.pathname.startsWith(item.path))
 
   return (
@@ -98,9 +87,9 @@ export const OwnerLayout: React.FC = () => {
         </div>
 
         {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1">
-            Hostel Operations
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-2">
+            Warden Operations
           </div>
 
           {navItems.map((item) => (
@@ -108,7 +97,7 @@ export const OwnerLayout: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 ${
                   isActive
                     ? 'bg-[#2563EB] text-white shadow-md font-bold'
                     : 'text-slate-300 hover:bg-white/10 hover:text-white'
@@ -116,7 +105,7 @@ export const OwnerLayout: React.FC = () => {
               }
             >
               <span className="shrink-0">{item.icon}</span>
-              <span className="truncate">{item.label}</span>
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </div>
@@ -131,13 +120,13 @@ export const OwnerLayout: React.FC = () => {
                 className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-white/20 shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
-                {profile?.full_name?.charAt(0) || 'O'}
+              <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                {profile?.full_name?.charAt(0) || 'W'}
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-white truncate">{profile?.full_name || 'Owner'}</p>
-              <p className="text-[11px] text-[#16A085] font-semibold capitalize">Owner / Admin</p>
+              <p className="text-xs font-bold text-white truncate">{profile?.full_name || 'Warden'}</p>
+              <p className="text-[11px] text-teal-400 font-semibold capitalize">Hostel Warden</p>
             </div>
           </div>
 
@@ -165,56 +154,60 @@ export const OwnerLayout: React.FC = () => {
 
             <div className="hidden sm:block min-w-0">
               <h1 className="text-base sm:text-lg font-bold text-[#172033] tracking-tight truncate">{pageTitle}</h1>
-              <p className="text-[11px] text-slate-500 font-medium truncate">HostelHUB Multi-Hostel Administration</p>
+              <p className="text-[11px] text-slate-500 font-medium truncate">Warden Hostel Management</p>
             </div>
           </div>
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Multi-Hostel Selector (Optimized for Mobile Touch) */}
-            <div className="relative flex items-center max-w-[170px] sm:max-w-[220px]">
-              <Building className="absolute left-2.5 w-3.5 h-3.5 text-slate-500 pointer-events-none shrink-0" />
-              <select
-                value={selectedHostelId}
-                onChange={(e) => setSelectedHostelId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 text-xs font-bold text-[#172033] rounded-xl pl-8 pr-7 py-1.5 sm:py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-2xs hover:bg-slate-100 transition-colors truncate"
-              >
-                <option value="all">🏢 All Hostels ({hostels.length})</option>
-                {hostels.map((h) => (
-                  <option key={h.id} value={h.id}>
-                    {h.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 w-3.5 h-3.5 text-slate-500 pointer-events-none shrink-0" />
-            </div>
+            {/* Assigned Hostel Selector */}
+            {hostels.length > 1 ? (
+              <div className="relative flex items-center max-w-[170px] sm:max-w-[220px]">
+                <Building className="absolute left-2.5 w-3.5 h-3.5 text-slate-500 pointer-events-none shrink-0" />
+                <select
+                  value={selectedHostelId}
+                  onChange={(e) => setSelectedHostelId(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 text-xs font-bold text-[#172033] rounded-xl pl-8 pr-7 py-1.5 sm:py-2 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer shadow-2xs hover:bg-slate-100 transition-colors truncate"
+                >
+                  {hostels.map((h) => (
+                    <option key={h.id} value={h.id}>
+                      {h.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-2 w-3.5 h-3.5 text-slate-500 pointer-events-none shrink-0" />
+              </div>
+            ) : hostels.length === 1 ? (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-xs font-bold text-blue-900 max-w-[170px] sm:max-w-[220px] truncate">
+                <Building className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">{hostels[0].name}</span>
+              </div>
+            ) : null}
 
             {/* Quick Action: Add Resident (Desktop) */}
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={<PlusCircle className="w-4 h-4" />}
-              onClick={() => navigate('/app/residents/new')}
-              className="hidden sm:inline-flex"
-            >
-              Add Resident
-            </Button>
+            {wardenPermissions.can_add_residents && (
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<PlusCircle className="w-4 h-4" />}
+                onClick={() => navigate('/warden/residents/new')}
+                className="hidden sm:inline-flex"
+              >
+                Add Resident
+              </Button>
+            )}
 
             {/* User Profile Avatar */}
-            <div
-              onClick={() => navigate('/app/settings')}
-              className="cursor-pointer shrink-0"
-              title="Settings"
-            >
+            <div className="shrink-0">
               {profile?.avatar_path ? (
                 <img
                   src={profile.avatar_path}
                   alt={profile.full_name}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover border border-blue-200 hover:border-blue-500 hover:scale-105 transition-all shadow-xs"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover border border-teal-200 shadow-xs"
                 />
               ) : (
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 border border-blue-300 text-[#2563EB] flex items-center justify-center font-bold text-xs hover:border-blue-500 hover:bg-blue-100 transition-all shadow-xs">
-                  {profile?.full_name?.charAt(0) || 'O'}
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-50 border border-teal-300 text-teal-700 flex items-center justify-center font-bold text-xs shadow-xs">
+                  {profile?.full_name?.charAt(0) || 'W'}
                 </div>
               )}
             </div>
@@ -227,13 +220,11 @@ export const OwnerLayout: React.FC = () => {
         </main>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          MOBILE BOTTOM NAVIGATION BAR (Fixed at bottom on < 1024px)
-         ───────────────────────────────────────────────────────────── */}
+      {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg safe-bottom">
         {bottomNavItems.map((item) => {
           const Icon = item.icon
-          const isActive = location.pathname === item.path || (item.path !== '/app/dashboard' && location.pathname.startsWith(item.path))
+          const isActive = location.pathname === item.path || (item.path !== '/warden/dashboard' && location.pathname.startsWith(item.path))
           return (
             <NavLink
               key={item.path}
@@ -269,26 +260,21 @@ export const OwnerLayout: React.FC = () => {
         </button>
       </nav>
 
-      {/* ─────────────────────────────────────────────────────────────
-          "MORE" SLIDE-UP BOTTOM SHEET / DRAWER (Mobile)
-         ───────────────────────────────────────────────────────────── */}
+      {/* "MORE" SLIDE-UP DRAWER (Mobile) */}
       {isMoreDrawerOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
-          {/* Backdrop */}
           <div
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200"
             onClick={() => setIsMoreDrawerOpen(false)}
           />
 
-          {/* Drawer Panel */}
           <div className="relative bg-white rounded-t-3xl shadow-2xl border-t border-slate-200 p-5 z-10 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200">
-            {/* Grab Handle */}
             <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-4" />
 
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div>
-                <h3 className="text-base font-bold text-[#172033]">Management Menu</h3>
-                <p className="text-xs text-slate-500">Quick access to all hostel operations</p>
+                <h3 className="text-base font-bold text-[#172033]">Warden Operations</h3>
+                <p className="text-xs text-slate-500">Quick access to assigned hostel tools</p>
               </div>
               <button
                 onClick={() => setIsMoreDrawerOpen(false)}
@@ -298,21 +284,23 @@ export const OwnerLayout: React.FC = () => {
               </button>
             </div>
 
-            {/* Quick Action Button Inside Drawer */}
-            <div className="mb-4">
-              <Button
-                variant="primary"
-                size="md"
-                leftIcon={<PlusCircle className="w-5 h-5" />}
-                onClick={() => {
-                  setIsMoreDrawerOpen(false)
-                  navigate('/app/residents/new')
-                }}
-                className="w-full justify-center shadow-md py-3 text-sm font-bold"
-              >
-                + Add New Resident
-              </Button>
-            </div>
+            {/* Quick Action Button */}
+            {wardenPermissions.can_add_residents && (
+              <div className="mb-4">
+                <Button
+                  variant="primary"
+                  size="md"
+                  leftIcon={<PlusCircle className="w-5 h-5" />}
+                  onClick={() => {
+                    setIsMoreDrawerOpen(false)
+                    navigate('/warden/residents/new')
+                  }}
+                  className="w-full justify-center shadow-md py-3 text-sm font-bold"
+                >
+                  + Add New Resident
+                </Button>
+              </div>
+            )}
 
             {/* Menu Grid */}
             <div className="grid grid-cols-2 gap-2.5 mb-5">
@@ -339,23 +327,15 @@ export const OwnerLayout: React.FC = () => {
               })}
             </div>
 
-            {/* User Profile & Sign Out Footer in Drawer */}
+            {/* User Profile & Sign Out */}
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                {profile?.avatar_path ? (
-                  <img
-                    src={profile.avatar_path}
-                    alt={profile.full_name}
-                    className="w-8 h-8 rounded-full object-cover shrink-0"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                    {profile?.full_name?.charAt(0) || 'O'}
-                  </div>
-                )}
+                <div className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                  {profile?.full_name?.charAt(0) || 'W'}
+                </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-[#172033] truncate">{profile?.full_name || 'Owner'}</p>
-                  <p className="text-[10px] text-slate-500 truncate">{profile?.phone || profile?.role || 'Hostel Administrator'}</p>
+                  <p className="text-xs font-bold text-[#172033] truncate">{profile?.full_name || 'Warden'}</p>
+                  <p className="text-[10px] text-teal-600 font-semibold truncate">Hostel Warden</p>
                 </div>
               </div>
 

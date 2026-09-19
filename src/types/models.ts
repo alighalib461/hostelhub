@@ -12,6 +12,57 @@ export type RegistrationDocument = Database['public']['Tables']['registration_do
 export type FeeCharge = Database['public']['Tables']['fee_charges']['Row']
 export type Payment = Database['public']['Tables']['payments']['Row']
 export type Complaint = Database['public']['Tables']['complaints']['Row']
+export type WardenAssignment = Database['public']['Tables']['warden_assignments']['Row']
+export type WardenInvitation = Database['public']['Tables']['warden_invitations']['Row']
+export type PaymentAccount = Database['public']['Tables']['payment_accounts']['Row']
+export type OnlinePaymentSubmission = Database['public']['Tables']['online_payment_submissions']['Row']
+export type Announcement = Database['public']['Tables']['announcements']['Row']
+export type AnnouncementHostel = Database['public']['Tables']['announcement_hostels']['Row']
+export type Expense = Database['public']['Tables']['expenses']['Row']
+export type AuditLog = Database['public']['Tables']['audit_logs']['Row']
+
+export type UserRole = 'owner' | 'warden' | 'resident'
+
+export interface WardenPermissions {
+  can_view_residents: boolean
+  can_add_residents: boolean
+  can_edit_residents: boolean
+  can_manage_rooms: boolean
+  can_manage_beds: boolean
+  can_record_payments: boolean
+  can_verify_online_payments: boolean
+  can_view_fees: boolean
+  can_manage_complaints: boolean
+  can_manage_menu: boolean
+  can_create_announcements: boolean
+  can_view_expenses: boolean
+  can_manage_expenses: boolean
+  can_view_reports: boolean
+  can_check_in_out: boolean
+}
+
+export const DEFAULT_WARDEN_PERMISSIONS: WardenPermissions = {
+  can_view_residents: true,
+  can_add_residents: true,
+  can_edit_residents: true,
+  can_manage_rooms: true,
+  can_manage_beds: true,
+  can_record_payments: true,
+  can_verify_online_payments: true,
+  can_view_fees: true,
+  can_manage_complaints: true,
+  can_manage_menu: true,
+  can_create_announcements: true,
+  can_view_expenses: true,
+  can_manage_expenses: false,
+  can_view_reports: true,
+  can_check_in_out: true,
+}
+
+export interface WardenWithDetails extends WardenAssignment {
+  profile?: Profile
+  hostel?: Hostel
+}
 
 export type ComplaintCategory =
   | 'Electrical'
@@ -54,6 +105,7 @@ export interface HostelWithStats extends Hostel {
   available_beds?: number
   active_residents_count?: number
   monthly_collection?: number
+  wardens_count?: number
 }
 
 export interface BedWithResident extends Bed {
@@ -99,6 +151,25 @@ export interface PaymentWithDetails extends Payment {
   fee_charge?: FeeCharge
   room_number?: string
   bed_number?: string
+}
+
+export interface OnlinePaymentSubmissionWithDetails extends OnlinePaymentSubmission {
+  resident?: Resident
+  hostel?: Hostel
+  fee_charge?: FeeCharge
+  payment_account?: PaymentAccount | null
+  reviewer?: Profile | null
+}
+
+export interface AnnouncementWithDetails extends Announcement {
+  hostel?: Hostel | null
+  creator?: Profile
+  target_hostels?: Hostel[]
+}
+
+export interface ExpenseWithDetails extends Expense {
+  hostel?: Hostel
+  recorded_by_profile?: Profile
 }
 
 export interface RegistrationRequestWithDocs extends RegistrationRequest {
@@ -147,6 +218,8 @@ export interface DashboardMetrics {
   attention_items: {
     overdue_fees_count: number
     pending_registrations_count: number
+    pending_verifications_count: number
+    unresolved_complaints_count: number
     available_beds_count: number
   }
   recent_admissions: ResidentWithDetails[]

@@ -14,6 +14,9 @@ import {
   LifeBuoy,
   MoreHorizontal,
   X,
+  UtensilsCrossed,
+  Bell,
+  Smartphone,
 } from 'lucide-react'
 
 export const ResidentLayout: React.FC = () => {
@@ -25,21 +28,24 @@ export const ResidentLayout: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', path: '/resident/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
     { label: 'My Fees', path: '/resident/fees', icon: <CreditCard className="w-4 h-4" /> },
-    { label: 'Receipts', path: '/resident/receipts', icon: <Receipt className="w-4 h-4" /> },
+    { label: 'Pay Online', path: '/resident/pay-online', icon: <Smartphone className="w-4 h-4" /> },
+    { label: 'Mess Menu', path: '/resident/menu', icon: <UtensilsCrossed className="w-4 h-4" /> },
+    { label: 'Notices', path: '/resident/announcements', icon: <Bell className="w-4 h-4" /> },
     { label: 'Complaints', path: '/resident/complaints', icon: <LifeBuoy className="w-4 h-4" /> },
-    { label: 'My Hostel', path: '/resident/hostel', icon: <Building className="w-4 h-4" /> },
-    { label: 'Documents', path: '/resident/documents', icon: <FileText className="w-4 h-4" /> },
-    { label: 'Profile', path: '/resident/profile', icon: <User className="w-4 h-4" /> },
+    { label: 'Receipts', path: '/resident/receipts', icon: <Receipt className="w-4 h-4" /> },
   ]
 
   const bottomNavItems = [
     { label: 'Home', path: '/resident/dashboard', icon: LayoutDashboard },
-    { label: 'My Fees', path: '/resident/fees', icon: CreditCard },
-    { label: 'Complaints', path: '/resident/complaints', icon: LifeBuoy },
-    { label: 'Receipts', path: '/resident/receipts', icon: Receipt },
+    { label: 'Fees', path: '/resident/fees', icon: CreditCard },
+    { label: 'Pay Online', path: '/resident/pay-online', icon: Smartphone },
+    { label: 'Notices', path: '/resident/announcements', icon: Bell },
   ]
 
   const moreNavItems = [
+    { label: 'Mess Menu', path: '/resident/menu', icon: UtensilsCrossed, color: 'text-amber-600 bg-amber-50' },
+    { label: 'Complaints & Requests', path: '/resident/complaints', icon: LifeBuoy, color: 'text-rose-600 bg-rose-50' },
+    { label: 'Payment Receipts', path: '/resident/receipts', icon: Receipt, color: 'text-emerald-600 bg-emerald-50' },
     { label: 'Hostel Details', path: '/resident/hostel', icon: Building, color: 'text-blue-600 bg-blue-50' },
     { label: 'My Documents', path: '/resident/documents', icon: FileText, color: 'text-purple-600 bg-purple-50' },
     { label: 'My Profile', path: '/resident/profile', icon: User, color: 'text-slate-600 bg-slate-100' },
@@ -56,7 +62,7 @@ export const ResidentLayout: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col pb-24 md:pb-6 overflow-x-hidden">
       {/* Top Header */}
       <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <BrandLogo variant="full" iconSize={30} />
 
           {/* Desktop Nav Items */}
@@ -99,7 +105,7 @@ export const ResidentLayout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-5xl w-full mx-auto p-3.5 sm:p-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-3.5 sm:p-6">
         <Outlet />
       </main>
 
@@ -153,7 +159,7 @@ export const ResidentLayout: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <div>
                 <h3 className="text-base font-bold text-[#172033]">Resident Menu</h3>
-                <p className="text-xs text-slate-500">Hostel info, documents, & account</p>
+                <p className="text-xs text-slate-500">Mess menu, complaints, documents, & account</p>
               </div>
               <button
                 onClick={() => setIsMoreDrawerOpen(false)}
@@ -163,7 +169,7 @@ export const ResidentLayout: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-2 mb-5">
+            <div className="grid grid-cols-2 gap-2.5 mb-5">
               {moreNavItems.map((item) => {
                 const Icon = item.icon
                 const isActive = location.pathname.startsWith(item.path)
@@ -172,7 +178,7 @@ export const ResidentLayout: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMoreDrawerOpen(false)}
-                    className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-xs font-semibold ${
+                    className={`flex items-center gap-2.5 p-3 rounded-2xl border transition-all text-xs font-semibold ${
                       isActive
                         ? 'bg-blue-50/80 border-blue-300 text-blue-800 font-bold'
                         : 'bg-slate-50/60 border-slate-200/80 text-slate-700 hover:bg-slate-100'
@@ -181,7 +187,7 @@ export const ResidentLayout: React.FC = () => {
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
                       <Icon className="w-4 h-4" />
                     </div>
-                    <span>{item.label}</span>
+                    <span className="truncate">{item.label}</span>
                   </NavLink>
                 )
               })}
@@ -208,4 +214,3 @@ export const ResidentLayout: React.FC = () => {
     </div>
   )
 }
-

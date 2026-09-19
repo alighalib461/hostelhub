@@ -8,6 +8,7 @@ import { paymentsService } from '../../services/payments/paymentsService'
 import { roomsService } from '../../services/rooms/roomsService'
 import { registrationsService } from '../../services/registrations/registrationsService'
 import { complaintsService } from '../../services/complaints/complaintsService'
+import { onlinePaymentsService } from '../../services/onlinePayments/onlinePaymentsService'
 import { StatCard } from '../../components/shared/StatCard'
 import { Button } from '../../components/ui/Button'
 import { StatusBadge } from '../../components/shared/StatusBadge'
@@ -49,6 +50,7 @@ export const OwnerDashboardPage: React.FC = () => {
   const [activeResidents, setActiveResidents] = useState<ResidentWithDetails[]>([])
   const [recentPayments, setRecentPayments] = useState<PaymentWithDetails[]>([])
   const [pendingRequests, setPendingRequests] = useState<RegistrationRequestWithDocs[]>([])
+  const [pendingVerificationsCount, setPendingVerificationsCount] = useState(0)
   const [complaintsSummary, setComplaintsSummary] = useState({
     total: 0,
     submitted: 0,
@@ -91,7 +93,7 @@ export const OwnerDashboardPage: React.FC = () => {
   const loadDashboardData = async () => {
     setIsLoading(true)
     try {
-      const [residents, payments, fees, roomsData, requests, complaintsSum] = await Promise.all([
+      const [residents, payments, fees, roomsData, requests, complaintsSum, pendingVerifs] = await Promise.all([
         residentsService.getResidents({
           hostelId: selectedHostelId,
           status: 'active',
@@ -106,6 +108,7 @@ export const OwnerDashboardPage: React.FC = () => {
           status: 'pending',
         }),
         complaintsService.getComplaintsSummary(selectedHostelId),
+        onlinePaymentsService.getPendingCount(selectedHostelId),
       ])
 
       setActiveResidents(residents)
@@ -113,6 +116,7 @@ export const OwnerDashboardPage: React.FC = () => {
       setFeeSummary(fees)
       setPendingRequests(requests)
       setComplaintsSummary(complaintsSum)
+      setPendingVerificationsCount(pendingVerifs)
 
       // Calculate occupancy
       let totalB = 0
@@ -157,6 +161,7 @@ export const OwnerDashboardPage: React.FC = () => {
   const hasActionItems =
     complaintsSummary.unresolved > 0 ||
     pendingRequests.length > 0 ||
+    pendingVerificationsCount > 0 ||
     feeSummary.overdue > 0
 
   return (
@@ -305,7 +310,28 @@ export const OwnerDashboardPage: React.FC = () => {
         </div>
 
         {hasActionItems ? (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            {/* Pending Online Payment Verifications */}
+            {pendingVerificationsCount > 0 && (
+              <div
+                onClick={() => navigate('/app/payment-verifications')}
+                className="flex items-center justify-between p-3 rounded-xl bg-indigo-50/80 border border-indigo-200/90 cursor-pointer hover:bg-indigo-100/80 transition-colors"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-indigo-900 truncate">
+                      {pendingVerificationsCount} Online Verification{pendingVerificationsCount > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-[10px] text-indigo-700 truncate">Approve / Reject Proof</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-indigo-600 shrink-0" />
+              </div>
+            )}
+
             {/* Unresolved Complaints */}
             {complaintsSummary.unresolved > 0 && (
               <div
@@ -374,7 +400,7 @@ export const OwnerDashboardPage: React.FC = () => {
         ) : (
           <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>All operations normal. No pending admission requests, open complaints, or overdue fees!</span>
+            <span>All operations normal. No pending payments to verify, admission requests, open complaints, or overdue fees!</span>
           </div>
         )}
       </div>

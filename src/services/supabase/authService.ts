@@ -41,11 +41,11 @@ export const authService = {
     // Fallback: If DB row is still syncing, synthesize profile from user metadata
     if (user) {
       const meta = user.user_metadata || {}
-      const fallbackRole = (meta.role as 'owner' | 'resident') || 'resident'
+      const fallbackRole = (meta.role as 'owner' | 'warden' | 'resident') || 'resident'
       return {
         id: user.id,
         email: user.email || '',
-        full_name: meta.full_name || meta.name || (fallbackRole === 'owner' ? 'Hostel Owner' : 'Resident User'),
+        full_name: meta.full_name || meta.name || (fallbackRole === 'owner' ? 'Hostel Owner' : fallbackRole === 'warden' ? 'Hostel Warden' : 'Resident User'),
         phone: meta.phone || null,
         role: fallbackRole,
         avatar_path: meta.avatar_path || null,
@@ -77,7 +77,7 @@ export const authService = {
     }
   },
 
-  async signUp(email: string, password: string, fullName: string, role: 'owner' | 'resident', phone?: string) {
+  async signUp(email: string, password: string, fullName: string, role: 'owner' | 'warden' | 'resident', phone?: string) {
     const cleanEmail = email.trim().toLowerCase()
     const cleanName = fullName.trim()
     const cleanPhone = phone?.trim() || null
